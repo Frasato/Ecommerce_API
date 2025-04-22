@@ -2,6 +2,8 @@ package com.papelariafrasato.api.models;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -18,13 +20,13 @@ public class User {
     private Address address;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Order order;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Order> order;
 
     public User() {
     }
 
-    public User(String id, String name, String password, String email, String role, Address address, Cart cart, Order order) {
+    public User(String id, String name, String password, String email, String role, Address address, Cart cart, List<Order> order) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -91,11 +93,11 @@ public class User {
         this.cart = cart;
     }
 
-    public Order getOrder() {
+    public List<Order> getOrder() {
         return order;
     }
 
-    public void setOrder(Order order) {
+    public void setOrder(List<Order> order) {
         this.order = order;
     }
 }

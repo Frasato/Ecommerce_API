@@ -7,6 +7,7 @@ import com.papelariafrasato.api.models.Address;
 import com.papelariafrasato.api.models.Cart;
 import com.papelariafrasato.api.models.Order;
 import com.papelariafrasato.api.models.User;
+import com.papelariafrasato.api.repositories.AddressRepository;
 import com.papelariafrasato.api.repositories.UserRepository;
 import com.papelariafrasato.api.services.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -25,6 +28,8 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AddressRepository addressRepository;
     @Autowired
     private TokenService tokenService;
     @Autowired
@@ -38,8 +43,10 @@ public class AuthController {
         address.setCity(registerDto.city());
         address.setCEP(registerDto.CEP());
 
+        addressRepository.save(address);
+
         Cart cart = new Cart();
-        Order order = new Order();
+        List<Order> order = new ArrayList<>();
 
         User user = new User();
         user.setName(registerDto.name());

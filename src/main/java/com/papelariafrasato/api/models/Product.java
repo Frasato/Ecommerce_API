@@ -13,6 +13,7 @@ public class Product {
     private String product_description;
     private double price;
     private String category;
+    private double discount;
 
     @ManyToOne
     @JoinColumn(name = "cart_id")
@@ -21,12 +22,13 @@ public class Product {
     public Product() {
     }
 
-    public Product(String product_id, String product_name, String product_description, double price, String category, Cart cart) {
+    public Product(String product_id, String product_name, String product_description, double price, String category, double discount, Cart cart) {
         this.product_id = product_id;
         this.product_name = product_name;
         this.product_description = product_description;
         this.price = price;
         this.category = category;
+        this.discount = discount;
         this.cart = cart;
     }
 
@@ -76,5 +78,13 @@ public class Product {
 
     public void setCart(Cart cart) {
         this.cart = cart;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(double discount) {
+        this.discount = discount;
     }
 }

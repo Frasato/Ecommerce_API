@@ -35,7 +35,7 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PostMapping("/register")
+    @PostMapping("/api/register")
     public ResponseEntity<?> userRegister(@RequestBody RegisterDto registerDto){
         Address address = new Address();
         address.setStreet(registerDto.street());

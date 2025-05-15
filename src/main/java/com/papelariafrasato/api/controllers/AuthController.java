@@ -3,7 +3,11 @@ package com.papelariafrasato.api.controllers;
 import com.papelariafrasato.api.dtos.LoginDto;
 import com.papelariafrasato.api.dtos.RegisterDto;
 import com.papelariafrasato.api.dtos.ResponseUserDto;
+import com.papelariafrasato.api.models.Address;
+import com.papelariafrasato.api.models.Cart;
 import com.papelariafrasato.api.models.User;
+import com.papelariafrasato.api.repositories.AddressRepository;
+import com.papelariafrasato.api.repositories.CartRepository;
 import com.papelariafrasato.api.repositories.UserRepository;
 import com.papelariafrasato.api.services.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +29,20 @@ public class AuthController {
     private TokenService tokenService;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    private CartRepository cartRepository;
 
     @PostMapping("/register")
     public ResponseEntity<?> userRegister(@RequestBody RegisterDto registerDto){
+
+        Address address = new Address();
+        address.setCEP(registerDto.CEP());
+        address.setStreet(registerDto.street());
+        address.setCity(registerDto.city());
+        address.setNumber(registerDto.number());
+
         User user = new User();
         user.setName(registerDto.name());
         user.setEmail(registerDto.email());
@@ -36,7 +51,16 @@ public class AuthController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok().body(user);
+        address.setUser(user);
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cart.setTotalPrice(0);
+
+        cartRepository.save(cart);
+        addressRepository.save(address);
+
+        String token = this.tokenService.generateToken(user);
+        return ResponseEntity.ok().body(new ResponseUserDto(user.getName(), address, token));
     }
 
     @PostMapping("/login")
@@ -49,9 +73,12 @@ public class AuthController {
 
         User findedUser = user.orElseThrow();
 
+        Address address = addressRepository.findByUserId(findedUser.getId())
+                .orElseThrow(() -> new RuntimeException("Error on find address"));
+
         if(passwordEncoder.matches(loginDto.password(), findedUser.getPassword())){
             String token = this.tokenService.generateToken(findedUser);
-            return ResponseEntity.ok().body(new ResponseUserDto(findedUser.getName(), findedUser.getAddress(), token));
+            return ResponseEntity.ok().body(new ResponseUserDto(findedUser.getName(), address, token));
         }
 
         return ResponseEntity.badRequest().build();

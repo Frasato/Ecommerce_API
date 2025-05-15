@@ -15,9 +15,9 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String street;
-    private int number;
+    private String number;
     private String city;
-    private int CEP;
+    private String CEP;
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;

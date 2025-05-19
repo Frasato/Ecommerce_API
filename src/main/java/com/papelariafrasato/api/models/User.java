@@ -21,6 +21,9 @@ public class User {
     private String password;
     @NotBlank(message = "Email is mandatory")
     private String email;
+    private String customerId;
+    @NotBlank(message = "CPF is mandatory")
+    private String cpf;
     private String role;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Address address;

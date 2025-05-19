@@ -55,7 +55,6 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        // Limpar o carrinho após criar o pedido
         cart.setCartItem(null);
         cart.setTotalPrice(0);
         cartRepository.save(cart);
@@ -83,7 +82,6 @@ public class OrderService {
             throw new InvalidOrderStatusException(status);
         }
 
-        // Validação de transição de status
         validateStatusTransition(order.getStatus(), status);
 
         order.setStatus(status);

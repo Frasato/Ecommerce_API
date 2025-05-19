@@ -29,5 +29,7 @@ public class User {
     private Address address;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
+    @OneToMany(mappedBy = "user")
+    private Payment payment;
 
 }

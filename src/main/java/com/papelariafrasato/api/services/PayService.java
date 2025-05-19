@@ -6,6 +6,7 @@ import com.papelariafrasato.api.models.Order;
 import com.papelariafrasato.api.models.User;
 import com.papelariafrasato.api.repositories.OrderRepository;
 import com.papelariafrasato.api.repositories.UserRepository;
+import com.papelariafrasato.api.utils.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -29,14 +30,23 @@ public class PayService {
     @Autowired
     private OrderRepository orderRepository;
 
-    public ResponseEntity<?> generatePix(String customer, String userId, String orderId){
+    public ResponseEntity<?> generatePix(String userId, String orderId) throws IOException, InterruptedException {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        String customer;
+
+        if(user.getCustomerId().isBlank()){
+            Customer generateCustomer = new Customer();
+            customer = generateCustomer.create(user.getName(), user.getCpf());
+        }else {
+            customer = user.getCustomerId();
+        }
+
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
         double value = order.getTotalPrice();
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
+                .uri(URI.create(url+"/payments"))
                 .header("accept", "application/json")
                 .header("content-type", "application/json")
                 .method("POST", HttpRequest.BodyPublishers.ofString(
@@ -44,11 +54,7 @@ public class PayService {
                 ))
                 .build();
 
-        try {
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            return ResponseEntity.status(201).body(response.body());
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        return ResponseEntity.status(201).body(response.body());
     }
 }

@@ -1,7 +1,9 @@
 package com.papelariafrasato.api.services;
 
+import com.papelariafrasato.api.exceptions.CartItemNotFoundException;
 import com.papelariafrasato.api.exceptions.CartNotFoundException;
 import com.papelariafrasato.api.exceptions.ProductNotFoundException;
+import com.papelariafrasato.api.exceptions.UserNotFoundException;
 import com.papelariafrasato.api.models.Cart;
 import com.papelariafrasato.api.models.CartItem;
 import com.papelariafrasato.api.models.Product;
@@ -38,7 +40,7 @@ public class CartService {
     @Transactional
     public ResponseEntity<?> addItemOnCart(String userId, String productId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         Cart cart = cartRepository.findCartByUserId(userId)
                 .orElseThrow(() -> new CartNotFoundException(userId));
@@ -79,7 +81,7 @@ public class CartService {
     @Transactional
     public ResponseEntity<?> removeItemFromCart(String cartItemId) {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new RuntimeException("Item do carrinho não encontrado"));
+                .orElseThrow(() -> new CartItemNotFoundException(cartItemId));
 
         Cart cart = cartItem.getCart();
         Product product = cartItem.getProduct();

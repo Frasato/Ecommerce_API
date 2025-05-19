@@ -1,8 +1,6 @@
 package com.papelariafrasato.api.services;
 
-import com.papelariafrasato.api.exceptions.EmptyCartException;
-import com.papelariafrasato.api.exceptions.InvalidOrderStatusException;
-import com.papelariafrasato.api.exceptions.OrderNotFoundException;
+import com.papelariafrasato.api.exceptions.*;
 import com.papelariafrasato.api.models.*;
 import com.papelariafrasato.api.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +26,10 @@ public class OrderService {
     @Transactional
     public ResponseEntity<?> createOrder(String userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         Cart cart = cartRepository.findCartByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Carrinho não encontrado"));
+                .orElseThrow(() -> new CartNotFoundException(userId));
 
         if (cart.getCartItem() == null || cart.getCartItem().isEmpty()) {
             throw new EmptyCartException();

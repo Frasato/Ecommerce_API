@@ -1,4 +1,8 @@
 package com.papelariafrasato.api.dtos;
 
-public record RequestPaymentePixDto(String customer, String userId, String orderId) {
+import jakarta.validation.constraints.NotBlank;
+
+public record RequestPaymentePixDto(
+        String userId,
+        String orderId) {
 }

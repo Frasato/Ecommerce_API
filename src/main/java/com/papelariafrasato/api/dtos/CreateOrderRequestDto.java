@@ -1,5 +1,8 @@
 package com.papelariafrasato.api.dtos;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record CreateOrderRequestDto(
-    String userId
+        @NotBlank(message = "UserId shouldn't be empty")
+        String userId
 ){} 

@@ -19,7 +19,7 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private String status; //PENDING - PAID - DELIVERY - FINISH
+    private String status; //PENDING - PAID - DELIVERY - FINISH - ERROR
     private Integer totalPrice;
     @ManyToOne
     @JoinColumn(name = "user_id")

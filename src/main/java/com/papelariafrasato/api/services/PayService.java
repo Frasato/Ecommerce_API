@@ -28,8 +28,10 @@ import java.util.Date;
 @Service
 public class PayService {
 
-    @Value("${api.payment.key}")
+    @Value("${api.payment.url}")
     private String url;
+    @Value("${api.payment.key}")
+    private String key;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -55,6 +57,7 @@ public class PayService {
                 .uri(URI.create(url+"/payments"))
                 .header("accept", "application/json")
                 .header("content-type", "application/json")
+                .header("access_token", key)
                 .method("POST", HttpRequest.BodyPublishers.ofString(
                         "{\"billingType\":\"PIX\",\"value\":" + value +",\"dueDate\":\""+ Date.from(Instant.now()) +"\",\"customer\":\""+ customer +"\"}"
                 ))
@@ -72,6 +75,7 @@ public class PayService {
         HttpRequest requestQrCode = HttpRequest.newBuilder()
                 .uri(URI.create(url+"/payments/"+ paymenteId +"/pixQrCode"))
                 .header("accept", "application/json")
+                .header("access_token", key)
                 .method("GET", HttpRequest.BodyPublishers.noBody())
                 .build();
 

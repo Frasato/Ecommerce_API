@@ -12,14 +12,17 @@ import java.net.http.HttpResponse;
 
 public class Customer {
 
-    @Value("${api.payment.key}")
+    @Value("${api.payment.url}")
     private String url;
+    @Value("${api.payment.key}")
+    private String key;
 
     public String create(String name, String cpfCnpj) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url+"customers"))
                 .header("accept", "application/json")
                 .header("content-type", "application/json")
+                .header("access_token", key)
                 .method("POST", HttpRequest.BodyPublishers.ofString("{\"name\":\""+ name +"\",\"cpfCnpj\":" + cpfCnpj +"\"}"))
                 .build();
 

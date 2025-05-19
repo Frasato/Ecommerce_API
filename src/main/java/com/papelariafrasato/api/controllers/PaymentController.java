@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/payment")
 public class PaymentController {
@@ -17,8 +19,8 @@ public class PaymentController {
     private PayService payService;
 
     @PostMapping("/pix")
-    public ResponseEntity<?> createPixPayment(@RequestBody RequestPaymentePixDto requestPixDto){
-        return payService.generatePix(requestPixDto.customer(), requestPixDto.userId(), requestPixDto.orderId());
+    public ResponseEntity<?> createPixPayment(@RequestBody RequestPaymentePixDto requestPixDto) throws IOException, InterruptedException {
+        return payService.generatePix(requestPixDto.userId(), requestPixDto.orderId());
     }
 
 }

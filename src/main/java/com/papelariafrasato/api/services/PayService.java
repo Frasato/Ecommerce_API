@@ -1,10 +1,15 @@
 package com.papelariafrasato.api.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.papelariafrasato.api.dtos.ResponsePixQrCodeDto;
 import com.papelariafrasato.api.exceptions.OrderNotFoundException;
 import com.papelariafrasato.api.exceptions.UserNotFoundException;
 import com.papelariafrasato.api.models.Order;
+import com.papelariafrasato.api.models.Payment;
 import com.papelariafrasato.api.models.User;
 import com.papelariafrasato.api.repositories.OrderRepository;
+import com.papelariafrasato.api.repositories.PaymentRepository;
 import com.papelariafrasato.api.repositories.UserRepository;
 import com.papelariafrasato.api.utils.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +34,10 @@ public class PayService {
     private UserRepository userRepository;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private PaymentRepository paymentRepository;
 
-    public ResponseEntity<?> generatePix(String userId, String orderId) throws IOException, InterruptedException {
-
+    public ResponseEntity<ResponsePixQrCodeDto> generatePix(String userId, String orderId) throws IOException, InterruptedException {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         String customer;
 
@@ -55,6 +61,24 @@ public class PayService {
                 .build();
 
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        return ResponseEntity.status(201).body(response.body());
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response.body());
+        String paymenteId = root.get("id").asText();
+
+        Payment payment = new Payment();
+        payment.setUser(user);
+        payment.setPaymentId(paymenteId);
+
+        HttpRequest requestQrCode = HttpRequest.newBuilder()
+                .uri(URI.create(url+"/payments/"+ paymenteId +"/pixQrCode"))
+                .header("accept", "application/json")
+                .method("GET", HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        HttpResponse<String> responseQrCode = HttpClient.newHttpClient().send(requestQrCode, HttpResponse.BodyHandlers.ofString());
+        ObjectMapper mapperQrCode = new ObjectMapper();
+        JsonNode rootQrCode = mapperQrCode.readTree(responseQrCode.body());
+
+        return ResponseEntity.status(201).body(new ResponsePixQrCodeDto(rootQrCode.get("encodedImage").asText(), rootQrCode.get("payload").asText()));
     }
 }

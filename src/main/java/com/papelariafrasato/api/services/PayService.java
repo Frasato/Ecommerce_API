@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.papelariafrasato.api.dtos.ResponsePixQrCodeDto;
 import com.papelariafrasato.api.exceptions.OrderNotFoundException;
+import com.papelariafrasato.api.exceptions.PaymentNotFoundException;
 import com.papelariafrasato.api.exceptions.UserNotFoundException;
 import com.papelariafrasato.api.models.Order;
 import com.papelariafrasato.api.models.Payment;
@@ -142,5 +143,31 @@ public class PayService {
         payment.setPaymentId(paymentId);
         paymentRepository.save(payment);
         return ResponseEntity.status(201).build();
+    }
+
+    public ResponseEntity<?> getStatus(String paymentId, String orderId) throws IOException, InterruptedException {
+        Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new PaymentNotFoundException(paymentId));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url+"/payments/"+payment.getId()+"/status"))
+                .header("accept", "application/json")
+                .header("content-type", "application/json")
+                .header("access_token", key)
+                .method("GET", HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response.body());
+        String status = root.get("id").asText();
+
+        if(!order.getStatus().equals(status)){
+            order.setStatus(status);
+            orderRepository.save(order);
+            return ResponseEntity.status(200).body(status);
+        }
+
+        return ResponseEntity.status(200).body(status);
     }
 }

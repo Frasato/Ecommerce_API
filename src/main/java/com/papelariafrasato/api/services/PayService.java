@@ -24,6 +24,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class PayService {
@@ -84,5 +85,60 @@ public class PayService {
         JsonNode rootQrCode = mapperQrCode.readTree(responseQrCode.body());
 
         return ResponseEntity.status(201).body(new ResponsePixQrCodeDto(rootQrCode.get("encodedImage").asText(), rootQrCode.get("payload").asText()));
+    }
+
+    public ResponseEntity<?>  cardPaymente(String userId, String orderId, int parcels) throws IOException, InterruptedException {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
+        String customerId;
+        double value = order.getTotalPrice();
+        Payment payment = new Payment();
+        payment.setUser(user);
+
+        if(user.getCustomerId().isEmpty()){
+            Customer customer = new Customer();
+            customerId = customer.create(user.getName(), user.getCpf());
+        }else{
+            customerId = user.getCustomerId();
+        }
+
+        if(parcels > 1){
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url + "/payments"))
+                    .header("accept", "application/json")
+                    .header("content-type", "application/json")
+                    .header("access_token", key)
+                    .method("POST", HttpRequest.BodyPublishers.ofString(
+                            "{\"billingType\":\"PIX\",\"value\":" + value +"\",\"dueDate\":"
+                                    + Date.from(Instant.now()) +"\",\"customer\":"+ customerId +"\",\"installmentCount\":"
+                                    + parcels +"\"totalValue\":"+ value + value*0.1 +"}"))
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response.body());
+            String paymentId = root.get("id").asText();
+            payment.setPaymentId(paymentId);
+            paymentRepository.save(payment);
+
+            return ResponseEntity.status(201).build();
+        }
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url+"/payments"))
+                .header("accept", "application/json")
+                .header("content-type", "application/json")
+                .header("access_token", key)
+                .method("POST", HttpRequest.BodyPublishers.ofString(
+                "{\"billingType\":\"PIX\",\"value\":" + value +"\",\"dueDate\":"
+                        + Date.from(Instant.now()) +"\",\"customer\":"+ customerId +"\"}"))
+                .build();
+
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response.body());
+        String paymentId = root.get("id").asText();
+        payment.setPaymentId(paymentId);
+        paymentRepository.save(payment);
     }
 }

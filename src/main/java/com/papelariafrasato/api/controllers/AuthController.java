@@ -50,18 +50,17 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(registerDto.password()));
         user.setRole("ROLE_USER");
 
-        userRepository.save(user);
-
         address.setUser(user);
         Cart cart = new Cart();
         cart.setUser(user);
         cart.setTotalPrice(0);
 
-        cartRepository.save(cart);
-        addressRepository.save(address);
+        user.setCart(cart);
+        user.setAddress(address);
+        address.setUser(user);
 
-        String token = this.tokenService.generateToken(user);
-        return ResponseEntity.ok().body(new ResponseUserDto(user.getName(), address, token));
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")
@@ -79,7 +78,7 @@ public class AuthController {
 
         if(passwordEncoder.matches(loginDto.password(), findedUser.getPassword())){
             String token = this.tokenService.generateToken(findedUser);
-            return ResponseEntity.ok().body(new ResponseUserDto(findedUser.getName(), address, token));
+            return ResponseEntity.ok().body(new ResponseUserDto(findedUser.getName(), findedUser.getId(), token));
         }
 
         return ResponseEntity.badRequest().build();

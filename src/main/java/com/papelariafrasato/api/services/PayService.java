@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -110,7 +111,7 @@ public class PayService {
                     .header("access_token", key)
                     .method("POST", HttpRequest.BodyPublishers.ofString(
                             "{\"billingType\":\"PIX\",\"value\":" + value +"\",\"dueDate\":"
-                                    + Date.from(Instant.now()) +"\",\"customer\":"+ customerId +"\",\"installmentCount\":"
+                                    + Date.from(Instant.now().plus(Duration.ofDays(4))) +"\",\"customer\":"+ customerId +"\",\"installmentCount\":"
                                     + parcels +"\"totalValue\":"+ value + value*0.1 +"}"))
                     .build();
 
@@ -131,7 +132,7 @@ public class PayService {
                 .header("access_token", key)
                 .method("POST", HttpRequest.BodyPublishers.ofString(
                 "{\"billingType\":\"PIX\",\"value\":" + value +"\",\"dueDate\":"
-                        + Date.from(Instant.now()) +"\",\"customer\":"+ customerId +"\"}"))
+                        + Date.from(Instant.now().plus(Duration.ofDays(4))) +"\",\"customer\":"+ customerId +"\"}"))
                 .build();
 
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
@@ -140,5 +141,6 @@ public class PayService {
         String paymentId = root.get("id").asText();
         payment.setPaymentId(paymentId);
         paymentRepository.save(payment);
+        return ResponseEntity.status(201).build();
     }
 }

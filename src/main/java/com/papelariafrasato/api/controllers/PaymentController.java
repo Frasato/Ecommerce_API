@@ -1,5 +1,6 @@
 package com.papelariafrasato.api.controllers;
 
+import com.papelariafrasato.api.dtos.RequestCardPaymentDto;
 import com.papelariafrasato.api.dtos.RequestPaymentePixDto;
 import com.papelariafrasato.api.services.PayService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,21 @@ public class PaymentController {
     private PayService payService;
 
     @PostMapping("/pix")
-    public ResponseEntity<?> createPixPayment(@RequestBody RequestPaymentePixDto requestPixDto) throws IOException, InterruptedException {
-        return payService.generatePix(requestPixDto.userId(), requestPixDto.orderId());
+    public ResponseEntity<?> createPixPayment(@RequestBody RequestPaymentePixDto requestPixDto){
+        try {
+            return payService.generatePix(requestPixDto.userId(), requestPixDto.orderId());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PostMapping("/card")
+    public ResponseEntity<?> createCardPayment(@RequestBody RequestCardPaymentDto cardPaymentDto){
+        try {
+            return payService.cardPaymente(cardPaymentDto.userId(),cardPaymentDto.orderId(), cardPaymentDto.parcel());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

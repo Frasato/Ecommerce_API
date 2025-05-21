@@ -6,6 +6,9 @@ import com.papelariafrasato.api.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/product")
@@ -20,13 +23,19 @@ public class ProductController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> createNewProduct(@RequestBody RequestProductDto productDto){
+    public ResponseEntity<?> createNewProduct(
+            @RequestParam("file") MultipartFile image,
+            @RequestParam("name") String name,
+            @RequestParam("desc") String description,
+            @RequestParam("price") Integer price,
+            @RequestParam("category") String category
+    ) throws IOException {
         return productService.addProduct(
-                productDto.image(),
-                productDto.name(),
-                productDto.description(),
-                productDto.price(),
-                productDto.category()
+                image,
+                name,
+                description,
+                price,
+                category
         );
     }
 

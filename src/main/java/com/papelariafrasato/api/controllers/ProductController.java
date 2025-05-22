@@ -1,7 +1,6 @@
 package com.papelariafrasato.api.controllers;
 
 import com.papelariafrasato.api.dtos.RequestAddDiscountProductDto;
-import com.papelariafrasato.api.dtos.RequestProductDto;
 import com.papelariafrasato.api.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,7 @@ public class ProductController {
             @RequestParam("desc") String description,
             @RequestParam("price") Integer price,
             @RequestParam("category") String category
-    ) throws IOException {
+    ){
         return productService.addProduct(
                 image,
                 name,

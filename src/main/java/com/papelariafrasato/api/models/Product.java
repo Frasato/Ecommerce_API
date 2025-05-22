@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(name = "products")
 @Getter
@@ -35,4 +37,6 @@ public class Product {
     private Integer priceWithDiscount;
     @NotBlank(message = "Category is mandatory")
     private String category;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<OrderItem> orderItems;
 }

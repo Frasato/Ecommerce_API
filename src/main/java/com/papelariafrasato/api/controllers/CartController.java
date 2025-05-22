@@ -28,7 +28,7 @@ public class CartController {
         return cartService.removeItemFromCart(cartItemId);
     }
 
-    @DeleteMapping("/{id}")
+    @PutMapping("/clear/{id}")
     public ResponseEntity<?> clearCart(@PathVariable("id")String userId){
         return cartService.clearCart(userId);
     }

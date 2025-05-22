@@ -7,6 +7,7 @@ import com.papelariafrasato.api.exceptions.ProductNotFoundException;
 import com.papelariafrasato.api.models.Product;
 import com.papelariafrasato.api.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -27,47 +28,54 @@ public class ProductService {
     private ProductRepository productRepository;
     @Autowired
     private RestTemplate restTemplate;
+    @Value("${BLOB_URL}")
+    private String blobStorageUrl;
 
     public ResponseEntity<?> allProducts() {
         return ResponseEntity.ok().body(productRepository.findAll());
     }
 
     @Transactional
-    public ResponseEntity<?> addProduct(MultipartFile image, String name, String description, Integer price, String category) throws IOException {
-        if (price < 0) {
-            throw new InvalidPriceException();
-        }
-
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("file", new org.springframework.core.io.ByteArrayResource(image.getBytes()){
-            @Override
-            public String getFilename(){
-                return image.getOriginalFilename();
+    public ResponseEntity<?> addProduct(MultipartFile image, String name, String description, Integer price, String category){
+        try {
+            if (price < 0) {
+                return ResponseEntity.badRequest().body("The price must be more than 100");
             }
-        });
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("file", new org.springframework.core.io.ByteArrayResource(image.getBytes()){
+                @Override
+                public String getFilename(){
+                    return image.getOriginalFilename();
+                }
+            });
+            body.add("name", name);
 
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        String response = restTemplate.postForObject("http://your-image/api/here", requestEntity, String.class);
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(response);
-        String urlImage = root.get("url").asText();
+            String response = restTemplate.postForObject(blobStorageUrl, requestEntity, String.class);
 
-        Product product = new Product();
-        product.setImage(urlImage);
-        product.setName(name);
-        product.setDescription(description);
-        product.setPrice(price);
-        product.setDiscount(0);
-        product.setPriceWithDiscount(0);
-        product.setCategory(category);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response);
+            String urlImage = root.get("url").asText();
 
-        productRepository.save(product);
-        return ResponseEntity.status(201).build();
+            Product product = new Product();
+            product.setImage(urlImage);
+            product.setName(name);
+            product.setDescription(description);
+            product.setPrice(price);
+            product.setDiscount(0);
+            product.setPriceWithDiscount(0);
+            product.setCategory(category);
+
+            productRepository.save(product);
+            return ResponseEntity.status(201).build();
+        }catch(IOException exception){
+            return ResponseEntity.internalServerError().body("ERROR HERE: " + exception.getMessage());
+        }
     }
 
     @Transactional
@@ -95,7 +103,7 @@ public class ProductService {
     public ResponseEntity<?> removeProductDiscount(String productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
-        
+
         product.setDiscount(0);
         product.setPriceWithDiscount(0);
         productRepository.save(product);

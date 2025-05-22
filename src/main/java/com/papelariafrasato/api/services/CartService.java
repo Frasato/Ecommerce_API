@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -106,7 +107,12 @@ public class CartService {
         Cart cart = cartRepository.findCartByUserId(userId)
                 .orElseThrow(() -> new CartNotFoundException(userId));
 
-        cart.setCartItem(null);
+        List<CartItem> cartItems = cart.getCartItem();
+        if(cartItems != null && !cartItems.isEmpty()){
+            cartItemRepository.deleteAll(cartItems);
+            cart.getCartItem().clear();
+        }
+
         cart.setTotalPrice(0);
         cartRepository.save(cart);
 

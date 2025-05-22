@@ -3,6 +3,7 @@ package com.papelariafrasato.api.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,10 +26,10 @@ public class Product {
     @NotBlank(message = "Product name is mandatory")
     private String name;
     @NotBlank(message = "Description is mandatory")
-    @Size(max = 255)
+    @Size(max = 255, min = 25, message = "Enter a description among 25 characters and 255 characters")
     private String description;
-    @NotBlank(message = "Price is mandatory")
-    @Min(1)
+    @NotNull
+    @Min(100)
     private Integer price;
     private Integer discount;
     private Integer priceWithDiscount;

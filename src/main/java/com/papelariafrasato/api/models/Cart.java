@@ -1,5 +1,7 @@
 package com.papelariafrasato.api.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,9 +22,11 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private Integer totalPrice;
+    @JsonBackReference
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+    @JsonManagedReference
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
     private List<CartItem> cartItem;
 

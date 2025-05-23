@@ -61,7 +61,7 @@ public class CartService {
 
             cartItemRepository.save(cartItem);
             cartRepository.save(cart);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.status(201).build();
         }
 
         CartItem cartItem = new CartItem();

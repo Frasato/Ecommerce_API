@@ -10,6 +10,10 @@ import com.papelariafrasato.api.repositories.AddressRepository;
 import com.papelariafrasato.api.repositories.CartRepository;
 import com.papelariafrasato.api.repositories.UserRepository;
 import com.papelariafrasato.api.services.TokenService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +25,10 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/auth")
+@Tag(
+        name = "Authenticate",
+        description = "EndPoints to login and register users"
+)
 public class AuthController {
 
     @Autowired
@@ -35,8 +43,16 @@ public class AuthController {
     private CartRepository cartRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<?> userRegister(@RequestBody RegisterDto registerDto){
+    @Operation(
+            summary = "Register",
+            description = "Create a new user"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Created a new user success"),
+            @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
+    })
 
+    public ResponseEntity<?> userRegister(@RequestBody RegisterDto registerDto){
         Address address = new Address();
         address.setCEP(registerDto.CEP());
         address.setStreet(registerDto.street());
@@ -64,6 +80,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(
+            summary = "Login",
+            description = "Enter with a existent user"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User find success"),
+            @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
+    })
     public ResponseEntity<?> userLogin(@RequestBody LoginDto loginDto){
         Optional<User> user = userRepository.findByEmail(loginDto.email());
 

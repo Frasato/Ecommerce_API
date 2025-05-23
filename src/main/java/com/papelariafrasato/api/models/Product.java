@@ -25,11 +25,15 @@ public class Product {
     private String id;
     @NotBlank(message = "Image is mandatory")
     private String image;
+    @NotBlank(message = "BarCode is mandatory")
+    private String barCode;
     @NotBlank(message = "Product name is mandatory")
     private String name;
     @NotBlank(message = "Description is mandatory")
     @Size(max = 255, min = 25, message = "Enter a description among 25 characters and 255 characters")
     private String description;
+    @NotBlank(message = "Producer is mandatory")
+    private String producer;
     @NotNull
     @Min(100)
     private Integer price;

@@ -99,7 +99,7 @@ public class ProductService {
         product.setPriceWithDiscount(newPrice);
 
         productRepository.save(product);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(204).build();
     }
 
     @Transactional
@@ -110,7 +110,7 @@ public class ProductService {
         product.setDiscount(0);
         product.setPriceWithDiscount(0);
         productRepository.save(product);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(204).build();
     }
 
     @Transactional
@@ -129,7 +129,7 @@ public class ProductService {
                 productRepository.save(product);
             }
 
-            return ResponseEntity.ok().build();
+            return ResponseEntity.status(204).build();
         }catch(RuntimeException exception){
             return ResponseEntity.internalServerError().body("ERROR: " + exception.getMessage());
         }

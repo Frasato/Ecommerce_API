@@ -1,6 +1,7 @@
 package com.papelariafrasato.api.controllers;
 
 import com.papelariafrasato.api.dtos.RequestAddDiscountProductDto;
+import com.papelariafrasato.api.dtos.RequestCategoryDiscountDto;
 import com.papelariafrasato.api.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,11 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<?> removeDiscount(@PathVariable("id") String productId){
         return productService.removeProductDiscount(productId);
+    }
+
+    @PutMapping("/category/discount")
+    public ResponseEntity<?> addDiscountByCategory(@RequestBody RequestCategoryDiscountDto categoryDiscountDto){
+        return productService.addDiscountOnCategory(categoryDiscountDto.category(), categoryDiscountDto.discount());
     }
 
     @DeleteMapping("/{id}")

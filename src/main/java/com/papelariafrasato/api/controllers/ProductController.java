@@ -25,14 +25,18 @@ public class ProductController {
     public ResponseEntity<?> createNewProduct(
             @RequestParam("file") MultipartFile image,
             @RequestParam("name") String name,
+            @RequestParam("barcode") String barcode,
             @RequestParam("desc") String description,
+            @RequestParam("producer") String producer,
             @RequestParam("price") Integer price,
             @RequestParam("category") String category
     ){
         return productService.addProduct(
                 image,
+                barcode,
                 name,
                 description,
+                producer,
                 price,
                 category
         );

@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class ProductService {
@@ -36,7 +37,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ResponseEntity<?> addProduct(MultipartFile image, String name, String description, Integer price, String category){
+    public ResponseEntity<?> addProduct(MultipartFile image, String barCode, String name, String description, String producer, Integer price, String category){
         try {
             if (price < 0) {
                 return ResponseEntity.badRequest().body("The price must be more than 100");
@@ -64,8 +65,10 @@ public class ProductService {
 
             Product product = new Product();
             product.setImage(urlImage);
+            product.setBarCode(barCode);
             product.setName(name);
             product.setDescription(description);
+            product.setProducer(producer);
             product.setPrice(price);
             product.setDiscount(0);
             product.setPriceWithDiscount(0);
@@ -108,6 +111,29 @@ public class ProductService {
         product.setPriceWithDiscount(0);
         productRepository.save(product);
         return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    public ResponseEntity<?> addDiscountOnCategory(String category, int discount){
+        try{
+            if(category.isEmpty() || discount <= 0){
+                return ResponseEntity.badRequest().body("ERROR: Category or Discount doesn't be empty!");
+            }
+
+            List<Product> products = productRepository.getProductsByCategory(category);
+            double percent = (double) discount / 100;
+
+            for(Product product : products){
+                int newPrice = (int) (product.getPrice() * (1 - percent));
+                product.setPriceWithDiscount(newPrice);
+                productRepository.save(product);
+            }
+
+            return ResponseEntity.ok().build();
+        }catch(RuntimeException exception){
+            return ResponseEntity.internalServerError().body("ERROR: " + exception.getMessage());
+        }
+
     }
 
     @Transactional

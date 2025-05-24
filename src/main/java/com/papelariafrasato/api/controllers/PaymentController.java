@@ -40,7 +40,7 @@ public class PaymentController {
         try {
             return payService.generatePix(requestPixDto.userId(), requestPixDto.orderId());
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 

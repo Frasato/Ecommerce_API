@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -26,7 +25,6 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class PayService {
@@ -41,52 +39,58 @@ public class PayService {
     private OrderRepository orderRepository;
     @Autowired
     private PaymentRepository paymentRepository;
+    @Autowired
+    private Customer customerGen;
 
-    public ResponseEntity<ResponsePixQrCodeDto> generatePix(String userId, String orderId) throws IOException, InterruptedException {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        String customer;
+    public ResponseEntity<?> generatePix(String userId, String orderId) throws IOException, InterruptedException {
+        try {
+            User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+            String customer;
 
-        if(user.getCustomerId().isBlank()){
-            Customer generateCustomer = new Customer();
-            customer = generateCustomer.create(user.getName(), user.getCpf());
-        }else {
-            customer = user.getCustomerId();
+            if(user.getCustomerId() == null){
+                customer = customerGen.create(user.getName(), user.getCpf());
+            }else {
+                customer = user.getCustomerId();
+            }
+
+            Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
+            double value = order.getTotalPrice();
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url+"/payments"))
+                    .header("accept", "application/json")
+                    .header("content-type", "application/json")
+                    .header("access_token", key)
+                    .method("POST", HttpRequest.BodyPublishers.ofString(
+                            "{\"billingType\":\"PIX\",\"value\":"+value+",\"customer\":\""+customer+"\",\"dueDate\":\"2025-06-07\"}"
+                    ))
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response.body());
+            String paymenteId = root.get("id").asText();
+
+            Payment payment = new Payment();
+            payment.setUser(user);
+            payment.setPaymentId(paymenteId);
+
+            HttpRequest requestQrCode = HttpRequest.newBuilder()
+                    .uri(URI.create(url+"/payments/"+ paymenteId +"/pixQrCode"))
+                    .header("accept", "application/json")
+                    .header("access_token", key)
+                    .method("GET", HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            HttpResponse<String> responseQrCode = HttpClient.newHttpClient().send(requestQrCode, HttpResponse.BodyHandlers.ofString());
+            ObjectMapper mapperQrCode = new ObjectMapper();
+            JsonNode rootQrCode = mapperQrCode.readTree(responseQrCode.body());
+
+            return ResponseEntity.status(201).body(new ResponsePixQrCodeDto(rootQrCode.get("encodedImage").asText(), rootQrCode.get("payload").asText()));
+        }catch(Exception e){
+            return ResponseEntity.internalServerError().body("ERRO: " + e.getMessage());
         }
-
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
-        double value = order.getTotalPrice();
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url+"/payments"))
-                .header("accept", "application/json")
-                .header("content-type", "application/json")
-                .header("access_token", key)
-                .method("POST", HttpRequest.BodyPublishers.ofString(
-                        "{\"billingType\":\"PIX\",\"value\":" + value +",\"dueDate\":\""+ Date.from(Instant.now()) +"\",\"customer\":\""+ customer +"\"}"
-                ))
-                .build();
-
-        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(response.body());
-        String paymenteId = root.get("id").asText();
-
-        Payment payment = new Payment();
-        payment.setUser(user);
-        payment.setPaymentId(paymenteId);
-
-        HttpRequest requestQrCode = HttpRequest.newBuilder()
-                .uri(URI.create(url+"/payments/"+ paymenteId +"/pixQrCode"))
-                .header("accept", "application/json")
-                .header("access_token", key)
-                .method("GET", HttpRequest.BodyPublishers.noBody())
-                .build();
-
-        HttpResponse<String> responseQrCode = HttpClient.newHttpClient().send(requestQrCode, HttpResponse.BodyHandlers.ofString());
-        ObjectMapper mapperQrCode = new ObjectMapper();
-        JsonNode rootQrCode = mapperQrCode.readTree(responseQrCode.body());
-
-        return ResponseEntity.status(201).body(new ResponsePixQrCodeDto(rootQrCode.get("encodedImage").asText(), rootQrCode.get("payload").asText()));
     }
 
     public ResponseEntity<?>  cardPaymente(String userId, String orderId, int parcels) throws IOException, InterruptedException {

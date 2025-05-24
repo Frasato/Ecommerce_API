@@ -96,14 +96,14 @@ public class PayService {
     public ResponseEntity<?>  cardPaymente(String userId, String orderId, int parcels) throws IOException, InterruptedException {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
+
         String customerId;
         double value = order.getTotalPrice();
         Payment payment = new Payment();
         payment.setUser(user);
 
-        if(user.getCustomerId().isEmpty()){
-            Customer customer = new Customer();
-            customerId = customer.create(user.getName(), user.getCpf());
+        if(user.getCustomerId() == null){
+            customerId = customerGen.create(user.getName(), user.getCpf());
         }else{
             customerId = user.getCustomerId();
         }
@@ -115,19 +115,19 @@ public class PayService {
                     .header("content-type", "application/json")
                     .header("access_token", key)
                     .method("POST", HttpRequest.BodyPublishers.ofString(
-                            "{\"billingType\":\"PIX\",\"value\":" + value +"\",\"dueDate\":"
-                                    + Date.from(Instant.now().plus(Duration.ofDays(4))) +"\",\"customer\":"+ customerId +"\",\"installmentCount\":"
-                                    + parcels +"\"totalValue\":"+ value + value*0.1 +"}"))
+                            "{\"billingType\":\"CREDIT_CARD\",\"customer\":\""+customerId+"\",\"value\":"+value+",\"dueDate\":\"2025-06-07\",\"installmentCount\":"+parcels+",\"totalValue\":"+value+"}"
+                    ))
                     .build();
 
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(response.body());
             String paymentId = root.get("id").asText();
             payment.setPaymentId(paymentId);
             paymentRepository.save(payment);
 
-            return ResponseEntity.status(201).build();
+            return ResponseEntity.status(204).build();
         }
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -136,8 +136,8 @@ public class PayService {
                 .header("content-type", "application/json")
                 .header("access_token", key)
                 .method("POST", HttpRequest.BodyPublishers.ofString(
-                "{\"billingType\":\"PIX\",\"value\":" + value +"\",\"dueDate\":"
-                        + Date.from(Instant.now().plus(Duration.ofDays(4))) +"\",\"customer\":"+ customerId +"\"}"))
+                        "{\"billingType\":\"CREDIT_CARD\",\"customer\":\""+customerId+"\",\"value\":"+value+",\"dueDate\":\"2025-06-07\"}"
+                ))
                 .build();
 
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
@@ -146,7 +146,8 @@ public class PayService {
         String paymentId = root.get("id").asText();
         payment.setPaymentId(paymentId);
         paymentRepository.save(payment);
-        return ResponseEntity.status(201).build();
+
+        return ResponseEntity.status(204).build();
     }
 
     public ResponseEntity<?> getStatus(String paymentId, String orderId) throws IOException, InterruptedException {

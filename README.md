@@ -61,3 +61,20 @@ spring.datasource.password=sua_senha
 ```
 4º Access the documentation
 <p>After starting the application, access http://localhost:8080/swagger-ui.html</p>
+
+
+### 🔛 Websocket
+
+- <b>Endpoints</b>
+  - /ws -> Endpoint to connect
+  - /app/user/chat -> Users send messages
+  - /app/admin/chat -> Admins send messages
+  - /app/admin/close -> Admins close chats
+
+- <b>Specifics Topics</b>
+    - /topic/chat/{chatId} -> Messages for a specific chat
+    - /topic/admin/chats -> Notification for admins
+
+- <b>Rest Endpoints</b>
+    - [POST] /chat/{userId} -> Creation new chat
+    - [GET] /chat -> List all actives chats

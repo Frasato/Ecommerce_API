@@ -1,0 +1,60 @@
+package com.papelariafrasato.api.controllers;
+
+import com.papelariafrasato.api.dtos.ChatDto;
+import com.papelariafrasato.api.services.WebSocketService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
+
+import java.time.LocalDateTime;
+
+@Controller
+@Tag(
+        name = "Websocket",
+        description = "Websocket chat endpoints"
+)
+public class WebSocketController {
+
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    private WebSocketService webSocketService;
+
+    @MessageMapping("/user/chat")
+    @Operation(
+            summary = "User chat",
+            description = "Chat messaging chat"
+    )
+    public void handleUserMessage(ChatDto chatDto){
+        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.chatId(), chatDto);
+        simpMessagingTemplate.convertAndSend("/topic/admin/chats", chatDto);
+    }
+
+    @MessageMapping("/admin/chat")
+    @Operation(
+            summary = "Admin chat",
+            description = "Chat messaging by chat ID"
+    )
+    public void handleAdminMessage(ChatDto chatDto){
+        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.chatId(), chatDto);
+    }
+
+    @MessageMapping("/admin/close")
+    @Operation(
+            summary = "Close chat",
+            description = "Close chat messaging by chat ID"
+    )
+    public void closeChat(String chatId){
+        webSocketService.closeChat(chatId);
+
+        ChatDto closeNotification = new ChatDto(
+                chatId, null, "Chat encerrado", "SYSTEM", false, LocalDateTime.now().toString()
+        );
+
+        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatId, closeNotification);
+        simpMessagingTemplate.convertAndSend("/topic/admin/chats", closeNotification);
+    }
+}

@@ -29,7 +29,7 @@ public class ProductService {
     private ProductRepository productRepository;
     @Autowired
     private RestTemplate restTemplate;
-    @Value("${BLOB_URL}")
+    @Value("${api.blob.storage.api}")
     private String blobStorageUrl;
 
     public ResponseEntity<?> allProducts() {

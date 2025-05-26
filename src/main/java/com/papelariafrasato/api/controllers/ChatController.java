@@ -23,7 +23,7 @@ public class ChatController {
     @Autowired
     private WebSocketService webSocketService;
 
-    @PostMapping()
+    @PostMapping("/{id}")
     @Operation(
             summary = "Create chat",
             description = "Create a new chat"
@@ -32,8 +32,7 @@ public class ChatController {
             @ApiResponse(responseCode = "201", description = "Created chat"),
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
-    public ResponseEntity<String> createChat(@RequestParam("userId") String userId){
-
+    public ResponseEntity<String> createChat(@PathVariable("id") String userId){
         if(userId.isEmpty()){
             return ResponseEntity.status(404).body("Missing some information");
         }

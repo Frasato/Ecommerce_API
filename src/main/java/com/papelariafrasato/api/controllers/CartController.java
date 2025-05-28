@@ -1,8 +1,11 @@
 package com.papelariafrasato.api.controllers;
 
 import com.papelariafrasato.api.dtos.AddItemToCartRequestDto;
+import com.papelariafrasato.api.models.Cart;
 import com.papelariafrasato.api.services.CartService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,7 +30,7 @@ public class CartController {
             description = "Get items on cart by user"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Found cart"),
+            @ApiResponse(responseCode = "200", description = "Found cart", content = @Content(schema = @Schema(implementation = Cart.class))),
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> getCart(@PathVariable("id")String userId){

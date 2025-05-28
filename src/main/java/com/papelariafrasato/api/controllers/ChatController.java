@@ -1,8 +1,12 @@
 package com.papelariafrasato.api.controllers;
 
+import com.papelariafrasato.api.dtos.ResponseCreateChatDto;
+import com.papelariafrasato.api.dtos.ResponseListChatsDto;
 import com.papelariafrasato.api.models.Chat;
 import com.papelariafrasato.api.services.WebSocketService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,16 +33,16 @@ public class ChatController {
             description = "Create a new chat"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Created chat"),
+            @ApiResponse(responseCode = "201", description = "Created chat", content = @Content(schema = @Schema(implementation = ResponseCreateChatDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
-    public ResponseEntity<String> createChat(@PathVariable("id") String userId){
+    public ResponseEntity<?> createChat(@PathVariable("id") String userId){
         if(userId.isEmpty()){
             return ResponseEntity.status(404).body("Missing some information");
         }
 
         String chatId = webSocketService.createChat(userId);
-        return ResponseEntity.status(201).body(chatId);
+        return ResponseEntity.status(201).body(new ResponseCreateChatDto(chatId));
     }
 
     @GetMapping()
@@ -47,11 +51,11 @@ public class ChatController {
             description = "Endpoint to list all activated chats"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Founded Chats")
+            @ApiResponse(responseCode = "201", description = "Founded Chats", content = @Content(schema = @Schema(implementation = ResponseListChatsDto.class)))
     })
-    public ResponseEntity<List<Chat>> listAllChats(){
+    public ResponseEntity<ResponseListChatsDto> listAllChats(){
         List<Chat> chats = webSocketService.getActiveChats();
-        return ResponseEntity.ok().body(chats);
+        return ResponseEntity.ok().body(new ResponseListChatsDto(chats));
     }
 
 }

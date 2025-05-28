@@ -2,8 +2,11 @@ package com.papelariafrasato.api.controllers;
 
 import com.papelariafrasato.api.dtos.RequestAddDiscountProductDto;
 import com.papelariafrasato.api.dtos.RequestCategoryDiscountDto;
+import com.papelariafrasato.api.dtos.ResponseAllProductsDto;
 import com.papelariafrasato.api.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,6 +29,14 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping()
+    @Operation(
+            summary = "All Products",
+            description = "Get all products"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Get all", content = @Content(schema = @Schema(implementation = ResponseAllProductsDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
+    })
     public ResponseEntity<?> getAllProducts(){
         return productService.allProducts();
     }

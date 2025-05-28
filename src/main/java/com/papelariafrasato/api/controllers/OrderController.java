@@ -1,9 +1,13 @@
 package com.papelariafrasato.api.controllers;
 
 import com.papelariafrasato.api.dtos.CreateOrderRequestDto;
+import com.papelariafrasato.api.dtos.ResponseAllOrdersDto;
+import com.papelariafrasato.api.dtos.ResponseOrderDto;
 import com.papelariafrasato.api.dtos.UpdateOrderStatusRequestDto;
 import com.papelariafrasato.api.services.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +32,7 @@ public class OrderController {
             description = "Create product order"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Created order"),
+            @ApiResponse(responseCode = "201", description = "Created order", content = @Content(schema = @Schema(implementation = ResponseOrderDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequestDto requestDto) {
@@ -41,7 +45,7 @@ public class OrderController {
             description = "Get orders by user"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Found user orders"),
+            @ApiResponse(responseCode = "200", description = "Found user orders", content = @Content(schema = @Schema(implementation = ResponseAllOrdersDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> getAllOrders(@PathVariable("userId") String userId) {
@@ -54,7 +58,7 @@ public class OrderController {
             description = "Get order by id"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Found user order by order id"),
+            @ApiResponse(responseCode = "200", description = "Found user order by order id", content = @Content(schema = @Schema(implementation = ResponseOrderDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> getOrderById(@PathVariable("id") String orderId) {
@@ -67,7 +71,7 @@ public class OrderController {
             description = "Update status order by order id"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Updated order"),
+            @ApiResponse(responseCode = "200", description = "Updated order", content = @Content(schema = @Schema(implementation = ResponseOrderDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> updateOrderStatus(

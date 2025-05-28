@@ -11,6 +11,8 @@ import com.papelariafrasato.api.repositories.CartRepository;
 import com.papelariafrasato.api.repositories.UserRepository;
 import com.papelariafrasato.api.services.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -85,7 +87,10 @@ public class AuthController {
             description = "Enter with a existent user"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User find success"),
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User find success",
+                    content = @Content(schema = @Schema(implementation = ResponseUserDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> userLogin(@RequestBody LoginDto loginDto){

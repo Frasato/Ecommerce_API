@@ -3,6 +3,7 @@ package com.papelariafrasato.api.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.papelariafrasato.api.dtos.ResponsePixQrCodeDto;
+import com.papelariafrasato.api.dtos.ResponseStatusDto;
 import com.papelariafrasato.api.exceptions.OrderNotFoundException;
 import com.papelariafrasato.api.exceptions.PaymentNotFoundException;
 import com.papelariafrasato.api.exceptions.UserNotFoundException;
@@ -173,6 +174,6 @@ public class PayService {
             return ResponseEntity.status(200).body(status);
         }
 
-        return ResponseEntity.status(200).body(status);
+        return ResponseEntity.status(200).body(new ResponseStatusDto(status));
     }
 }

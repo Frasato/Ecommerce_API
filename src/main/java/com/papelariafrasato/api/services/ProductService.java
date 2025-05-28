@@ -2,6 +2,7 @@ package com.papelariafrasato.api.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.papelariafrasato.api.dtos.ResponseAllProductsDto;
 import com.papelariafrasato.api.exceptions.InvalidPriceException;
 import com.papelariafrasato.api.exceptions.ProductNotFoundException;
 import com.papelariafrasato.api.models.Product;
@@ -33,7 +34,8 @@ public class ProductService {
     private String blobStorageUrl;
 
     public ResponseEntity<?> allProducts() {
-        return ResponseEntity.ok().body(productRepository.findAll());
+        List<Product> products = productRepository.findAll();
+        return ResponseEntity.ok().body(new ResponseAllProductsDto(products));
     }
 
     @Transactional

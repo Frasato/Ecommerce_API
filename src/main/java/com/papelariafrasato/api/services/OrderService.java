@@ -1,5 +1,7 @@
 package com.papelariafrasato.api.services;
 
+import com.papelariafrasato.api.dtos.ResponseAllOrdersDto;
+import com.papelariafrasato.api.dtos.ResponseOrderDto;
 import com.papelariafrasato.api.exceptions.*;
 import com.papelariafrasato.api.models.*;
 import com.papelariafrasato.api.repositories.*;
@@ -57,18 +59,18 @@ public class OrderService {
         cart.setTotalPrice(0);
         cartRepository.save(cart);
 
-        return ResponseEntity.status(201).body(order);
+        return ResponseEntity.status(201).body(new ResponseOrderDto(order));
     }
 
     public ResponseEntity<?> getAllOrders(String userId) {
         List<Order> orders = orderRepository.findByUserId(userId);
-        return ResponseEntity.ok().body(orders);
+        return ResponseEntity.ok().body(new ResponseAllOrdersDto(orders));
     }
 
     public ResponseEntity<?> getOrderById(String orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
-        return ResponseEntity.ok().body(order);
+        return ResponseEntity.ok().body(new ResponseOrderDto(order));
     }
 
     @Transactional
@@ -84,7 +86,7 @@ public class OrderService {
 
         order.setStatus(status);
         orderRepository.save(order);
-        return ResponseEntity.ok().body(order);
+        return ResponseEntity.ok().body(new ResponseOrderDto(order));
     }
 
     private boolean isValidStatus(String status) {

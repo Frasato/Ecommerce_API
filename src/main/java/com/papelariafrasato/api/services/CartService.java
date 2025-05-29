@@ -31,6 +31,8 @@ public class CartService {
     private CartItemRepository cartItemRepository;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private ProductAnalyticsService analyticsService;
 
     public ResponseEntity<?> findAllCartItemsUser(String userId) {
         Cart cart = cartRepository.findCartByUserId(userId)
@@ -40,8 +42,7 @@ public class CartService {
 
     @Transactional
     public ResponseEntity<?> addItemOnCart(String userId, String productId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
         Cart cart = cartRepository.findCartByUserId(userId)
                 .orElseThrow(() -> new CartNotFoundException(userId));
@@ -59,6 +60,7 @@ public class CartService {
             int newTotalPrice = cart.getTotalPrice() + productPrice;
             cart.setTotalPrice(newTotalPrice);
 
+            analyticsService.cartAddedProduct(productId);
             cartItemRepository.save(cartItem);
             cartRepository.save(cart);
             return ResponseEntity.status(201).build();

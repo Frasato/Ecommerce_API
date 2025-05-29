@@ -23,9 +23,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
 
 @Service
 public class PayService {
@@ -42,6 +39,8 @@ public class PayService {
     private PaymentRepository paymentRepository;
     @Autowired
     private Customer customerGen;
+    @Autowired
+    private ProductAnalyticsService analyticsService;
 
     public ResponseEntity<?> generatePix(String userId, String orderId) throws IOException, InterruptedException {
         try {
@@ -88,6 +87,7 @@ public class PayService {
             ObjectMapper mapperQrCode = new ObjectMapper();
             JsonNode rootQrCode = mapperQrCode.readTree(responseQrCode.body());
 
+            analyticsService.purchaseProduct(order);
             return ResponseEntity.status(201).body(new ResponsePixQrCodeDto(rootQrCode.get("encodedImage").asText(), rootQrCode.get("payload").asText()));
         }catch(Exception e){
             return ResponseEntity.internalServerError().body("ERRO: " + e.getMessage());
@@ -128,6 +128,7 @@ public class PayService {
             payment.setPaymentId(paymentId);
             paymentRepository.save(payment);
 
+            analyticsService.purchaseProduct(order);
             return ResponseEntity.status(204).build();
         }
 
@@ -148,6 +149,7 @@ public class PayService {
         payment.setPaymentId(paymentId);
         paymentRepository.save(payment);
 
+        analyticsService.purchaseProduct(order);
         return ResponseEntity.status(204).build();
     }
 

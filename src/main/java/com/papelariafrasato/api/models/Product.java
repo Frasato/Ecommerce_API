@@ -1,5 +1,6 @@
 package com.papelariafrasato.api.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -43,4 +44,7 @@ public class Product {
     private String category;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
+    @JsonBackReference
+    @OneToOne(mappedBy = "product")
+    private ProductAnalytics productAnalytics;
 }

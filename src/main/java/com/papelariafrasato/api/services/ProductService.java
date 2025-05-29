@@ -32,6 +32,13 @@ public class ProductService {
     private RestTemplate restTemplate;
     @Value("${api.blob.storage.api}")
     private String blobStorageUrl;
+    @Autowired
+    private ProductAnalyticsService analyticsService;
+
+    public ResponseEntity<?> getProduct(String productId){
+        analyticsService.clickedProduct(productId);
+        return ResponseEntity.ok().body(productRepository.findById(productId));
+    }
 
     public ResponseEntity<?> allProducts() {
         List<Product> products = productRepository.findAll();

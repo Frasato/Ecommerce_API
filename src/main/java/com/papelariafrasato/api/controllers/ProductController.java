@@ -3,6 +3,7 @@ package com.papelariafrasato.api.controllers;
 import com.papelariafrasato.api.dtos.RequestAddDiscountProductDto;
 import com.papelariafrasato.api.dtos.RequestCategoryDiscountDto;
 import com.papelariafrasato.api.dtos.ResponseAllProductsDto;
+import com.papelariafrasato.api.dtos.ResponseProductDto;
 import com.papelariafrasato.api.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/product")
@@ -34,11 +33,50 @@ public class ProductController {
             description = "Get all products"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Get all", content = @Content(schema = @Schema(implementation = ResponseAllProductsDto.class))),
+            @ApiResponse(responseCode = "200", description = "Get all", content = @Content(schema = @Schema(implementation = ResponseAllProductsDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> getAllProducts(){
         return productService.allProducts();
+    }
+
+    @GetMapping("/{id}")
+    @Operation(
+            summary = "Product",
+            description = "Get product by id"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Get product", content = @Content(schema = @Schema(implementation = ResponseProductDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
+    })
+    public ResponseEntity<?> getProductById(@PathVariable("id")String productId){
+        return productService.getProduct(productId);
+    }
+
+    @GetMapping("/purchase")
+    @Operation(
+            summary = "All Products",
+            description = "Get all products more purchase"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Get all products", content = @Content(schema = @Schema(implementation = ResponseAllProductsDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
+    })
+    public ResponseEntity<?> getAllProductsPurchase(){
+        return productService.getPurchaseProducts();
+    }
+
+    @GetMapping("/{category}")
+    @Operation(
+            summary = "All Product",
+            description = "Get all products by category"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Get all products", content = @Content(schema = @Schema(implementation = ResponseProductDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
+    })
+    public ResponseEntity<?> getProductsByCategory(@PathVariable("category")String category){
+        return productService.getAllProductsByCategory(category);
     }
 
     @PostMapping()

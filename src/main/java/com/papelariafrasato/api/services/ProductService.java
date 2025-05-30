@@ -3,9 +3,12 @@ package com.papelariafrasato.api.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.papelariafrasato.api.dtos.ResponseAllProductsDto;
+import com.papelariafrasato.api.dtos.ResponseProductDto;
 import com.papelariafrasato.api.exceptions.InvalidPriceException;
 import com.papelariafrasato.api.exceptions.ProductNotFoundException;
 import com.papelariafrasato.api.models.Product;
+import com.papelariafrasato.api.models.ProductAnalytics;
+import com.papelariafrasato.api.repositories.ProductAnalyticsRepository;
 import com.papelariafrasato.api.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,15 +38,35 @@ public class ProductService {
     private String blobStorageUrl;
     @Autowired
     private ProductAnalyticsService analyticsService;
+    @Autowired
+    private ProductAnalyticsRepository analyticsRepository;
 
+    @Transactional
     public ResponseEntity<?> getProduct(String productId){
         analyticsService.clickedProduct(productId);
-        return ResponseEntity.ok().body(productRepository.findById(productId));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException(productId));
+        return ResponseEntity.ok().body(new ResponseProductDto(product));
     }
 
     public ResponseEntity<?> allProducts() {
         List<Product> products = productRepository.findAll();
         return ResponseEntity.ok().body(new ResponseAllProductsDto(products));
+    }
+
+    public ResponseEntity<?> getPurchaseProducts(){
+        List<ProductAnalytics> analytics = analyticsRepository.findByPurchase();
+        List<Product> products = new ArrayList<>();
+
+        for(ProductAnalytics productAnalytics : analytics){
+            products.add(productAnalytics.getProduct());
+        }
+
+        return ResponseEntity.ok().body(new ResponseAllProductsDto(products));
+    }
+
+    public ResponseEntity<?> getAllProductsByCategory(String category){
+        List<Product> allFoundProducts = productRepository.getProductsByCategory(category);
+        return ResponseEntity.status(200).body(new ResponseAllProductsDto(allFoundProducts));
     }
 
     @Transactional

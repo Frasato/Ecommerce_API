@@ -81,7 +81,8 @@ public class CartService {
         Product product = cartItem.getProduct();
 
         int productPrice = product.getPriceWithDiscount() > 0 ? product.getPriceWithDiscount() : product.getPrice();
-        int newTotalPrice = cart.getTotalPrice() - productPrice;
+        int totalItemPrice = productPrice * cartItem.getQuantity();
+        int newTotalPrice = cart.getTotalPrice() - totalItemPrice;
         cart.setTotalPrice(newTotalPrice);
 
         if (cartItem.getQuantity() > 1) {
@@ -119,7 +120,16 @@ public class CartService {
         if(foundedCartItem.isPresent()){
             CartItem cartItem = foundedCartItem.get();
             cartItem.setQuantity(cartItem.getQuantity() + 1);
+
+            Cart cart = cartItem.getCart();
+            Product product = cartItem.getProduct();
+
+            int productPrice = product.getPriceWithDiscount() > 0? product.getPriceWithDiscount() : product.getPrice();
+            cart.setTotalPrice(cart.getTotalPrice() + productPrice);
+
             cartItemRepository.save(cartItem);
+            cartRepository.save(cart);
+
             return ResponseEntity.ok().build();
         }
 
@@ -132,11 +142,20 @@ public class CartService {
 
         if(foundedCartItem.isPresent()){
             CartItem cartItem = foundedCartItem.get();
+            Cart cart = cartItem.getCart();
+            Product product = cartItem.getProduct();
+            int productPrice = product.getPriceWithDiscount() > 0? product.getPriceWithDiscount() : product.getPrice();
+
             if(cartItem.getQuantity() == 1){
                 removeItemFromCart(cartItemId);
+                cart.setTotalPrice(cart.getTotalPrice() - productPrice);
+                cartItemRepository.delete(cartItem);
                 return ResponseEntity.ok().build();
             }
             cartItem.setQuantity(cartItem.getQuantity() - 1);
+            cart.setTotalPrice(cart.getTotalPrice() - productPrice);
+
+            cartRepository.save(cart);
             cartItemRepository.save(cartItem);
             return ResponseEntity.ok().build();
         }

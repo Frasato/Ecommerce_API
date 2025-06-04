@@ -14,12 +14,12 @@ public interface ProductAnalyticsRepository extends JpaRepository<ProductAnalyti
     @Query(value = "SELECT * FROM products_analytics WHERE product_id = :productId", nativeQuery = true)
     Optional<ProductAnalytics> findByProductId(@Param("productId")String productId);
 
-    @Query(value = "SELECT * FROM products_analytics WHERE purchase > 1 ORDER BY purchase,dateTime LIMIT 15", nativeQuery = true)
+    @Query(value = "SELECT * FROM products_analytics WHERE purchase > 1 ORDER BY purchase,date_time LIMIT 15", nativeQuery = true)
     List<ProductAnalytics> findByPurchase();
 
-    @Query(value = "SELECT * FROM products_analytics WHERE click > 1 ORDER BY click,dateTime LIMIT 15", nativeQuery = true)
+    @Query(value = "SELECT * FROM products_analytics WHERE click > 1 ORDER BY click,date_time LIMIT 15", nativeQuery = true)
     List<ProductAnalytics> findByClick();
 
-    @Query(value = "SELECT * FROM products_analytics WHERE cartAdded > 1 ORDER BY cartAdded,dateTime LIMIT 15", nativeQuery = true)
+    @Query(value = "SELECT * FROM products_analytics WHERE cartAdded > 1 ORDER BY cart_added,date_time LIMIT 15", nativeQuery = true)
     List<ProductAnalytics> findByCartAdded();
 }

@@ -66,13 +66,13 @@ public class ProductController {
         return productService.getPurchaseProducts();
     }
 
-    @GetMapping("/{category}")
+    @GetMapping("/cat/{category}")
     @Operation(
             summary = "All Product",
             description = "Get all products by category"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Get all products", content = @Content(schema = @Schema(implementation = ResponseProductDto.class))),
+            @ApiResponse(responseCode = "200", description = "Get all products", content = @Content(schema = @Schema(implementation = ResponseAllProductsDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> getProductsByCategory(@PathVariable("category")String category){

@@ -7,7 +7,6 @@ import com.papelariafrasato.api.exceptions.UserNotFoundException;
 import com.papelariafrasato.api.models.Cart;
 import com.papelariafrasato.api.models.CartItem;
 import com.papelariafrasato.api.models.Product;
-import com.papelariafrasato.api.models.User;
 import com.papelariafrasato.api.repositories.CartItemRepository;
 import com.papelariafrasato.api.repositories.CartRepository;
 import com.papelariafrasato.api.repositories.ProductRepository;
@@ -34,6 +33,7 @@ public class CartService {
     @Autowired
     private ProductAnalyticsService analyticsService;
 
+    @Transactional
     public ResponseEntity<?> findAllCartItemsUser(String userId) {
         Cart cart = cartRepository.findCartByUserId(userId)
                 .orElseThrow(() -> new CartNotFoundException(userId));
@@ -53,17 +53,8 @@ public class CartService {
         Optional<CartItem> foundCartItem = cartItemRepository.findByProductId(productId, cart.getId());
         if (foundCartItem.isPresent()) {
             CartItem cartItem = foundCartItem.get();
-            int quantity = cartItem.getQuantity() + 1;
-            cartItem.setQuantity(quantity);
-
-            int productPrice = product.getPriceWithDiscount() > 0 ? product.getPriceWithDiscount() : product.getPrice();
-            int newTotalPrice = cart.getTotalPrice() + productPrice;
-            cart.setTotalPrice(newTotalPrice);
-
-            analyticsService.cartAddedProduct(productId);
-            cartItemRepository.save(cartItem);
-            cartRepository.save(cart);
-            return ResponseEntity.status(201).build();
+            plusOneCartItem(cartItem.getId());
+            return ResponseEntity.ok().build();
         }
 
         CartItem cartItem = new CartItem();
@@ -119,5 +110,37 @@ public class CartService {
         cartRepository.save(cart);
 
         return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    public ResponseEntity<?> plusOneCartItem(String cartItemId){
+        Optional<CartItem> foundedCartItem = cartItemRepository.findById(cartItemId);
+
+        if(foundedCartItem.isPresent()){
+            CartItem cartItem = foundedCartItem.get();
+            cartItem.setQuantity(cartItem.getQuantity() + 1);
+            cartItemRepository.save(cartItem);
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+    @Transactional
+    public ResponseEntity<?> minusOneCartItem(String cartItemId){
+        Optional<CartItem> foundedCartItem = cartItemRepository.findById(cartItemId);
+
+        if(foundedCartItem.isPresent()){
+            CartItem cartItem = foundedCartItem.get();
+            if(cartItem.getQuantity() == 1){
+                removeItemFromCart(cartItemId);
+                return ResponseEntity.ok().build();
+            }
+            cartItem.setQuantity(cartItem.getQuantity() - 1);
+            cartItemRepository.save(cartItem);
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.notFound().build();
     }
 }

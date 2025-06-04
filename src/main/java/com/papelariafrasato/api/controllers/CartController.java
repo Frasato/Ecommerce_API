@@ -77,11 +77,27 @@ public class CartController {
     }
 
     @PutMapping("/plus/{cartItemId}")
+    @Operation(
+            summary = "Plus One",
+            description = "Get the cart item and plus one in the quantity of him"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Plus one success"),
+            @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
+    })
     public ResponseEntity<?> plusOneCartItem(@PathVariable("cartItemId")String cartItemId){
         return cartService.plusOneCartItem(cartItemId);
     }
 
     @PutMapping("/minus/{cartItemId}")
+    @Operation(
+            summary = "Minus One",
+            description = "Get the cart item and minus one, if the cart item has just one item, he will be deleted"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Minus one success"),
+            @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
+    })
     public ResponseEntity<?> minusOneCartItem(@PathVariable("cartItemId")String cartItemId){
         return cartService.minusOneCartItem(cartItemId);
     }

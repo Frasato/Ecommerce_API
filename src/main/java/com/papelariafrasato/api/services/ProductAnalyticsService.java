@@ -37,6 +37,7 @@ public class ProductAnalyticsService {
                 ProductAnalytics productAnalytics = foundedAnalytics.get();
                 productAnalytics.setPurchase(productAnalytics.getPurchase() + 1);
                 analyticsRepository.save(productAnalytics);
+                return;
             }
 
             ProductAnalytics productAnalytics = new ProductAnalytics();
@@ -56,6 +57,7 @@ public class ProductAnalyticsService {
             ProductAnalytics productAnalytics = analytics.get();
             productAnalytics.setClick(productAnalytics.getClick() + 1);
             analyticsRepository.save(productAnalytics);
+            return;
         }
 
         ProductAnalytics productAnalytics = new ProductAnalytics();
@@ -74,6 +76,7 @@ public class ProductAnalyticsService {
             ProductAnalytics productAnalytics = analytics.get();
             productAnalytics.setCartAdded(productAnalytics.getCartAdded() + 1);
             analyticsRepository.save(productAnalytics);
+            return;
         }
 
         ProductAnalytics productAnalytics = new ProductAnalytics();

@@ -76,4 +76,14 @@ public class CartController {
         return cartService.clearCart(userId);
     }
 
+    @PutMapping("/plus/{cartItemId}")
+    public ResponseEntity<?> plusOneCartItem(@PathVariable("cartItemId")String cartItemId){
+        return cartService.plusOneCartItem(cartItemId);
+    }
+
+    @PutMapping("/minus/{cartItemId}")
+    public ResponseEntity<?> minusOneCartItem(@PathVariable("cartItemId")String cartItemId){
+        return cartService.minusOneCartItem(cartItemId);
+    }
+
 }

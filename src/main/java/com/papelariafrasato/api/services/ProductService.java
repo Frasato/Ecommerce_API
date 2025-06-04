@@ -64,6 +64,7 @@ public class ProductService {
         return ResponseEntity.ok().body(new ResponseAllProductsDto(products));
     }
 
+    @Transactional
     public ResponseEntity<?> getAllProductsByCategory(String category){
         List<Product> allFoundProducts = productRepository.getProductsByCategory(category);
         return ResponseEntity.status(200).body(new ResponseAllProductsDto(allFoundProducts));

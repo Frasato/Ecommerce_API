@@ -85,13 +85,7 @@ public class CartService {
         int newTotalPrice = cart.getTotalPrice() - totalItemPrice;
         cart.setTotalPrice(newTotalPrice);
 
-        if (cartItem.getQuantity() > 1) {
-            cartItem.setQuantity(cartItem.getQuantity() - 1);
-            cartItemRepository.save(cartItem);
-        } else {
-            cartItemRepository.delete(cartItem);
-        }
-
+        cartItemRepository.delete(cartItem);
         cartRepository.save(cart);
         return ResponseEntity.ok().build();
     }
@@ -147,10 +141,7 @@ public class CartService {
             int productPrice = product.getPriceWithDiscount() > 0? product.getPriceWithDiscount() : product.getPrice();
 
             if(cartItem.getQuantity() == 1){
-                removeItemFromCart(cartItemId);
-                cart.setTotalPrice(cart.getTotalPrice() - productPrice);
-                cartItemRepository.delete(cartItem);
-                return ResponseEntity.ok().build();
+                return removeItemFromCart(cartItemId);
             }
             cartItem.setQuantity(cartItem.getQuantity() - 1);
             cart.setTotalPrice(cart.getTotalPrice() - productPrice);

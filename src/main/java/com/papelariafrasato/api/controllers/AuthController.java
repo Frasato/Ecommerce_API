@@ -53,7 +53,6 @@ public class AuthController {
             @ApiResponse(responseCode = "201", description = "Created a new user success"),
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
-
     public ResponseEntity<?> userRegister(@RequestBody RegisterDto registerDto){
         Address address = new Address();
         address.setCEP(registerDto.CEP());

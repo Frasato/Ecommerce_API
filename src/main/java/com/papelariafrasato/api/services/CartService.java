@@ -54,6 +54,8 @@ public class CartService {
         if (foundCartItem.isPresent()) {
             CartItem cartItem = foundCartItem.get();
             plusOneCartItem(cartItem.getId());
+
+            analyticsService.cartAddedProduct(productId);
             return ResponseEntity.ok().build();
         }
 
@@ -68,6 +70,8 @@ public class CartService {
 
         cartItemRepository.save(cartItem);
         cartRepository.save(cart);
+
+        analyticsService.cartAddedProduct(productId);
 
         return ResponseEntity.status(201).build();
     }

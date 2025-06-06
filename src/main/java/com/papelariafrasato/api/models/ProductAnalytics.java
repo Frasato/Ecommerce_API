@@ -21,9 +21,9 @@ public class ProductAnalytics {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private Integer purchase;
-    private Integer click;
-    private Integer cartAdded;
+    private Integer purchase = 0;
+    private Integer click = 0;
+    private Integer cartAdded = 0;
     private Instant dateTime;
     @JsonManagedReference
     @OneToOne

@@ -18,6 +18,10 @@ public class Address {
     private String id;
     @NotBlank(message = "Street is mandatory")
     private String street;
+    @NotBlank(message = "District is mandatory")
+    private String district;
+    @NotBlank(message = "State is mandatory")
+    private String countryState;
     @NotBlank(message = "Number is mandatory")
     private String number;
     @NotBlank(message = "City is mandatory")

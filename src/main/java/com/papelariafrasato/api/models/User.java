@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
 @Table(name = "users")
 @Getter
@@ -24,9 +22,10 @@ public class User {
     private String password;
     @NotBlank(message = "Email is mandatory")
     private String email;
-    private String customerId;
     @NotBlank(message = "CPF is mandatory")
     private String cpf;
+    @NotBlank(message = "Phone is mandatory")
+    private String phone;
     private String role;
     @JsonManagedReference
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
@@ -34,8 +33,5 @@ public class User {
     @JsonManagedReference
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
-    @JsonManagedReference
-    @OneToMany(mappedBy = "user")
-    private List<Payment> payment;
 
 }

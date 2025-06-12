@@ -79,7 +79,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleGenericException(Exception ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("message", "Ocorreu um erro interno no servidor");
+        body.put("message", "An Unexpected server error occurred!");
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
@@ -100,5 +100,14 @@ public class GlobalExceptionHandler {
         body.put("message", ex.getMessage());
         body.put("status", HttpStatus.NOT_FOUND.value());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(EmptyInformationException.class)
+    public ResponseEntity<?> handlerEmptyInformationException(EmptyInformationException ex){
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", ex.getMessage());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 } 

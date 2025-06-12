@@ -18,9 +18,9 @@ import java.util.Optional;
 @Component
 public class BuildXml {
 
-    @Value("${api.payment.id}")
+    @Value("${api.payment.merchant.id}")
     private String merchantId;
-    @Value("${api.payment.key}")
+    @Value("${api.payment.merchant.key}")
     private String merchantKey;
     @Autowired
     private UserRepository userRepository;

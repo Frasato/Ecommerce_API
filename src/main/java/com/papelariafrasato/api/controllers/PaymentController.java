@@ -2,6 +2,8 @@ package com.papelariafrasato.api.controllers;
 
 import com.papelariafrasato.api.dtos.RequestPaymentCardDto;
 import com.papelariafrasato.api.dtos.ResponsePaymentCardDto;
+import com.papelariafrasato.api.dtos.ResponsePaymentQueue;
+import com.papelariafrasato.api.services.PaymentQueueService;
 import com.papelariafrasato.api.services.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+
 @RestController
 @RequestMapping("/payments")
 @Tag(
@@ -25,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentController {
 
     @Autowired
-    private PaymentService paymentService;
+    private PaymentQueueService paymentQueueService;
 
     @PostMapping("/card")
     @Operation(
@@ -37,7 +42,8 @@ public class PaymentController {
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information"),
     })
     public ResponseEntity<?> cardPayment(@RequestBody RequestPaymentCardDto paymentCardDto){
-        return paymentService.processPayment(paymentCardDto);
+        paymentQueueService.sendPaymentToQueue(paymentCardDto);
+        return ResponseEntity.accepted().body(new ResponsePaymentQueue(Instant.now().toString(), "Payment receive and will be process later..."));
     }
 
 }

@@ -1,5 +1,6 @@
 package com.papelariafrasato.api.controllers;
 
+import com.papelariafrasato.api.dtos.ChatDto;
 import com.papelariafrasato.api.dtos.ResponseCreateChatDto;
 import com.papelariafrasato.api.dtos.ResponseListChatsDto;
 import com.papelariafrasato.api.models.Chat;
@@ -58,4 +59,16 @@ public class ChatController {
         return ResponseEntity.ok().body(new ResponseListChatsDto(chats));
     }
 
+    @GetMapping("/{chatId}/messages")
+    @Operation(
+            summary = "History chats",
+            description = "Endpoint to list all messages history on a chat"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Success on get history")
+    })
+    public ResponseEntity<List<ChatDto>> getChatMessages(@PathVariable String chatId){
+        List<ChatDto> messages = webSocketService.getChatHistory(chatId);
+        return ResponseEntity.ok(messages);
+    }
 }

@@ -3,6 +3,7 @@ package com.papelariafrasato.api.controllers;
 import com.papelariafrasato.api.dtos.LoginDto;
 import com.papelariafrasato.api.dtos.RegisterDto;
 import com.papelariafrasato.api.dtos.ResponseUserDto;
+import com.papelariafrasato.api.exceptions.UserNotFoundException;
 import com.papelariafrasato.api.models.Address;
 import com.papelariafrasato.api.models.Cart;
 import com.papelariafrasato.api.models.User;
@@ -19,12 +20,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.Optional;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping(value = "/auth")
 @Tag(
@@ -58,12 +58,15 @@ public class AuthController {
         address.setCEP(registerDto.CEP());
         address.setStreet(registerDto.street());
         address.setCity(registerDto.city());
+        address.setCountryState(registerDto.countryState());
+        address.setDistrict(registerDto.district());
         address.setNumber(registerDto.number());
 
         User user = new User();
         user.setName(registerDto.name());
         user.setEmail(registerDto.email());
         user.setCpf(registerDto.cpf());
+        user.setPhone(registerDto.phone());
         user.setPassword(passwordEncoder.encode(registerDto.password()));
         user.setRole("ROLE_USER");
 
@@ -99,10 +102,7 @@ public class AuthController {
             throw new RuntimeException("ERROR: Email or Password are wrong!");
         }
 
-        User findedUser = user.orElseThrow();
-
-        Address address = addressRepository.findByUserId(findedUser.getId())
-                .orElseThrow(() -> new RuntimeException("Error on find address"));
+        User findedUser = user.orElseThrow(() -> new UserNotFoundException(user.get().getId()));
 
         if(passwordEncoder.matches(loginDto.password(), findedUser.getPassword())){
             String token = this.tokenService.generateToken(findedUser);

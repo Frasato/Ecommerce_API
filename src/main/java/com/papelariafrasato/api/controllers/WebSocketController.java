@@ -19,12 +19,14 @@ public class WebSocketController {
 
     @MessageMapping("/user/chat")
     public void handleUserMessage(ChatDto chatDto){
+        webSocketService.saveMessage(chatDto);
         simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.chatId(), chatDto);
         simpMessagingTemplate.convertAndSend("/topic/admin/chats", chatDto);
     }
 
     @MessageMapping("/admin/chat")
     public void handleAdminMessage(ChatDto chatDto){
+        webSocketService.saveMessage(chatDto);
         simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.chatId(), chatDto);
     }
 

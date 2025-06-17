@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 @Component
 public class BuildXml {
@@ -35,6 +34,7 @@ public class BuildXml {
         Order order = orderRepository.findById(paymentCardDto.orderId())
                 .orElseThrow(() -> new OrderNotFoundException(paymentCardDto.orderId()));
 
+        String street = address.getStreet() + " " + address.getNumber();
         BigDecimal price = BigDecimal.valueOf(order.getTotalPrice() / 100);
 
         return String.format("""
@@ -97,10 +97,10 @@ public class BuildXml {
                 </transaction-request>
                 """,
                 merchantId, merchantKey, paymentCardDto.orderId(), user.getCpf(),
-                paymentCardDto.cardName(), address.getStreet(), address.getDistrict(),
+                paymentCardDto.cardName(), street, address.getDistrict(),
                 address.getCity(), address.getCountryState(), address.getCEP(), user.getPhone(),
                 user.getEmail(),
-                paymentCardDto.cardName(), address.getCountryState(), address.getDistrict(),
+                paymentCardDto.cardName(), street, address.getDistrict(),
                 address.getCity(), address.getCountryState(), address.getCEP(),
                 user.getPhone(), user.getEmail(),
                 paymentCardDto.cardNumber(), paymentCardDto.expirationMonth(),

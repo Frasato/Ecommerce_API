@@ -23,7 +23,7 @@ public class QueueService {
     public void receivePayment(RequestPaymentCardDto paymentCardDto, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag){
         try {
             paymentService.processPayment(paymentCardDto);
-            channel.basicNack(deliveryTag, false, false);
+            channel.basicAck(deliveryTag, false);
         }catch(Exception e){
             System.out.println(e.getMessage());
             try {

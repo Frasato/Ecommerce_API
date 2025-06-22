@@ -1,45 +1,96 @@
 package com.papelariafrasato.api.services;
 
-import com.papelariafrasato.api.dtos.RequestPaymentCardDto;
-import com.papelariafrasato.api.dtos.ResponsePaymentCardDto;
-import com.papelariafrasato.api.utils.BuildXml;
-import com.papelariafrasato.api.utils.PaymentHttp;
+import com.papelariafrasato.api.dtos.RequestCardDto;
+import com.papelariafrasato.api.dtos.RequestPixDto;
+import com.papelariafrasato.api.exceptions.OrderNotFoundException;
+import com.papelariafrasato.api.exceptions.UserNotFoundException;
+import com.papelariafrasato.api.models.Order;
+import com.papelariafrasato.api.models.User;
+import com.papelariafrasato.api.repositories.OrderRepository;
+import com.papelariafrasato.api.repositories.UserRepository;
+import com.papelariafrasato.api.utils.JsonRequest;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import java.util.Map;
 
 @Service
 public class PaymentService {
 
     @Autowired
-    private BuildXml buildXml;
+    private OrderRepository orderRepository;
     @Autowired
-    private PaymentHttp paymentHttp;
+    private UserRepository userRepository;
+    @Autowired
+    private JsonRequest jsonRequest;
+    @Value("${api.payment.url}")
+    private String paymentUrl;
+    @Value("${api.payment.token}")
+    private String paymentToken;
+    private final WebClient webClient;
 
-    public ResponseEntity<?> processPayment(RequestPaymentCardDto paymentCardDto){
+    private PaymentService(){
+        this.webClient = WebClient.builder()
+                .defaultHeader("Content-Type", "application/json")
+                .build();
+    }
 
-        if(paymentCardDto.cardNumber().isEmpty() ||
-                paymentCardDto.cardName().isEmpty() ||
-                paymentCardDto.expirationMonth().isEmpty() ||
-                paymentCardDto.expirationYear().isEmpty() ||
-                paymentCardDto.cvv().isEmpty())
-        {
-            return ResponseEntity.badRequest().body("Card fields can't be empty!");
+    public ResponseEntity<?> pixPayment(RequestPixDto pixDto){
+        if(pixDto.orderId().isEmpty() || pixDto.userId().isEmpty()) {
+            return ResponseEntity.badRequest().body(new BadRequestException());
         }
 
-        try{
-            String xmlRequest = buildXml.build(paymentCardDto);
-            String xmlResponse = paymentHttp.sendXmlRequest(xmlRequest);
-            ResponsePaymentCardDto response = paymentHttp.parseXmlResponse(xmlResponse);
+        User user = userRepository.findById(pixDto.userId())
+                .orElseThrow(() -> new UserNotFoundException(pixDto.userId()));
+        Order order = orderRepository.findById(pixDto.orderId())
+                .orElseThrow(() -> new OrderNotFoundException(pixDto.orderId()));
 
-            if(response.status().equals("ERROR")){
-                return ResponseEntity.internalServerError().body("Status: " + response.status() + " message: " + response.message());
-            }
+        Map<String, Object> body = jsonRequest.buildBodyPix(user, order);
 
-            return ResponseEntity.ok(response);
+        try {
+            var response = webClient.post()
+                    .uri(paymentUrl)
+                    .header("Authorization", "Bearer " + paymentToken)
+                    .header("X-Idempotency-Key", order.getId())
+                    .bodyValue(body)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
 
-        }catch(Exception e){
-            return ResponseEntity.internalServerError().body("Error on process the payment: " + e.getMessage());
+            return ResponseEntity.status(201).body(response);
+        }catch(Exception exception){
+            return ResponseEntity.internalServerError().body(exception.getMessage());
+        }
+    }
+
+    public ResponseEntity<?> cardPayment(RequestCardDto cardDto){
+        if(cardDto.orderId().isEmpty() || cardDto.userId().isEmpty()) {
+            return ResponseEntity.badRequest().body(new BadRequestException());
+        }
+
+        User user = userRepository.findById(cardDto.userId())
+                .orElseThrow(() -> new UserNotFoundException(cardDto.userId()));
+        Order order = orderRepository.findById(cardDto.orderId())
+                .orElseThrow(() -> new OrderNotFoundException(cardDto.orderId()));
+
+        Map<String, Object> body = jsonRequest.buildBodyCard(user, order, cardDto.installments(), cardDto.paymentMethodId(), cardDto.cardToken());
+
+        try {
+            var response = webClient.post()
+                    .uri(paymentUrl)
+                    .header("Authorization", "Bearer " + paymentToken)
+                    .header("X-Idempotency-Key", order.getId())
+                    .bodyValue(body)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            return ResponseEntity.status(201).body(response);
+        }catch(Exception exception){
+            return ResponseEntity.internalServerError().body(exception.getMessage());
         }
     }
 

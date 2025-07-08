@@ -128,18 +128,21 @@ public class ProductService {
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new ProductNotFoundException(productId));
 
-            if (discount < 0) throw new InvalidPriceException();
-
-            if (discount > product.getPrice()) throw new InvalidPriceException();
+            if (discount < 0 || discount > 100) throw new InvalidPriceException();
 
             if (product.getDiscount() > 0) throw new DiscountException(discount);
 
             product.setDiscount(discount);
-            final int newPrice = product.getPrice() - discount;
+
+            double percent = (double) discount / 100;
+            double discountPrice = product.getPrice() * percent;
+            double applyDiscount = product.getPrice() - discountPrice;
+            int newPrice = (int) applyDiscount * 100;
+
             product.setPriceWithDiscount(newPrice);
 
             productRepository.save(product);
-            return ResponseEntity.status(204).build();
+            return ResponseEntity.status(200).build();
         }catch(Exception e){
             throw new InternalServerException(e.getMessage());
         }

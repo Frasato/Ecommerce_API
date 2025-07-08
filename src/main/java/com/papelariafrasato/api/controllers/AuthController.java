@@ -1,16 +1,18 @@
 package com.papelariafrasato.api.controllers;
 
 import com.papelariafrasato.api.dtos.LoginDto;
+import com.papelariafrasato.api.dtos.RegisterAddressDto;
 import com.papelariafrasato.api.dtos.RegisterDto;
 import com.papelariafrasato.api.dtos.ResponseUserDto;
+import com.papelariafrasato.api.exceptions.InternalServerException;
 import com.papelariafrasato.api.exceptions.UserNotFoundException;
-import com.papelariafrasato.api.models.Address;
 import com.papelariafrasato.api.models.Cart;
 import com.papelariafrasato.api.models.User;
 import com.papelariafrasato.api.repositories.AddressRepository;
 import com.papelariafrasato.api.repositories.CartRepository;
 import com.papelariafrasato.api.repositories.UserRepository;
 import com.papelariafrasato.api.services.TokenService;
+import com.papelariafrasato.api.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -43,6 +45,8 @@ public class AuthController {
     private AddressRepository addressRepository;
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/register")
     @Operation(
@@ -54,14 +58,6 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> userRegister(@RequestBody RegisterDto registerDto){
-        Address address = new Address();
-        address.setCEP(registerDto.CEP());
-        address.setStreet(registerDto.street());
-        address.setCity(registerDto.city());
-        address.setCountryState(registerDto.countryState());
-        address.setDistrict(registerDto.district());
-        address.setNumber(registerDto.number());
-
         User user = new User();
         user.setName(registerDto.name());
         user.setEmail(registerDto.email());
@@ -70,14 +66,11 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(registerDto.password()));
         user.setRole("ROLE_USER");
 
-        address.setUser(user);
         Cart cart = new Cart();
         cart.setUser(user);
         cart.setTotalPrice(0);
 
         user.setCart(cart);
-        user.setAddress(address);
-        address.setUser(user);
 
         userRepository.save(user);
         return ResponseEntity.status(201).build();
@@ -110,6 +103,29 @@ public class AuthController {
         }
 
         return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping("/address/{userId}")
+    @Operation(
+            summary = "Register Address",
+            description = "Endpoint to register a address for a user"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User find success",
+                    content = @Content(schema = @Schema(implementation = ResponseUserDto.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(schema = @Schema(implementation = UserNotFoundException.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "A internal server error occurred",
+                    content = @Content(schema = @Schema(implementation = InternalServerException.class))),
+    })
+    public ResponseEntity<?> registerAddress(@RequestBody RegisterAddressDto addressDto, @PathVariable("userId")String userId){
+        return userService.registerAddress(addressDto, userId);
     }
 
 }

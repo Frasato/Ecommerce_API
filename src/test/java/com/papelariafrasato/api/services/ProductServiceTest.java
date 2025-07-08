@@ -57,6 +57,10 @@ class ProductServiceTest {
         String description = "Test Description";
         Integer price = 100;
         String category = "Test Category";
+        double height = 10.0;
+        double width = 10.0;
+        double product_length = 15.4;
+        double weight = 20.0;
 
         Product savedProduct = new Product();
         savedProduct.setId("1");
@@ -68,7 +72,7 @@ class ProductServiceTest {
 
         when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
 
-        ResponseEntity<?> response = productService.addProduct(image, barCode, name, description, producer, price, category);
+        ResponseEntity<?> response = productService.addProduct(image, barCode, name, description, producer, price, category, height, width, product_length, weight);
 
         assertEquals(201, response.getStatusCode().value());
         verify(productRepository, times(1)).save(any(Product.class));
@@ -88,8 +92,12 @@ class ProductServiceTest {
         String description = "Test Description";
         Integer price = -100;
         String category = "Test Category";
+        double height = 10.0;
+        double width = 10.0;
+        double product_length = 15.4;
+        double weight = 20.0;
 
-        ResponseEntity<?> response = productService.addProduct(image, barCode, name, description, producer, price, category);
+        ResponseEntity<?> response = productService.addProduct(image, barCode, name, description, producer, price, category, height, width, product_length, weight);
         assertEquals(400, response.getStatusCode().value());
     }
 

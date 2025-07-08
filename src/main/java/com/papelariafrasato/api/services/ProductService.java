@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.papelariafrasato.api.dtos.ResponseAllProductsDto;
 import com.papelariafrasato.api.dtos.ResponseProductDto;
+import com.papelariafrasato.api.exceptions.DiscountException;
+import com.papelariafrasato.api.exceptions.InternalServerException;
 import com.papelariafrasato.api.exceptions.InvalidPriceException;
 import com.papelariafrasato.api.exceptions.ProductNotFoundException;
 import com.papelariafrasato.api.models.Product;
@@ -24,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +74,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ResponseEntity<?> addProduct(MultipartFile image, String barCode, String name, String description, String producer, Integer price, String category){
+    public ResponseEntity<?> addProduct(MultipartFile image, String barCode, String name, String description, String producer, Integer price, String category, Double height, Double width, Double product_length, Double weight){
         try {
             if (price < 0) {
                 return ResponseEntity.badRequest().body("The price must be more than 100");
@@ -107,6 +110,10 @@ public class ProductService {
             product.setDiscount(0);
             product.setPriceWithDiscount(0);
             product.setCategory(category);
+            product.setProduct_length(product_length);
+            product.setHeight(height);
+            product.setWidth(width);
+            product.setWeight(weight);
 
             productRepository.save(product);
             return ResponseEntity.status(201).build();
@@ -117,23 +124,25 @@ public class ProductService {
 
     @Transactional
     public ResponseEntity<?> addDiscountOnProduct(String productId, int discount) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId));
+        try{
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        if (discount < 0) {
-            throw new InvalidPriceException();
+            if (discount < 0) throw new InvalidPriceException();
+
+            if (discount > product.getPrice()) throw new InvalidPriceException();
+
+            if (product.getDiscount() > 0) throw new DiscountException(discount);
+
+            product.setDiscount(discount);
+            final int newPrice = product.getPrice() - discount;
+            product.setPriceWithDiscount(newPrice);
+
+            productRepository.save(product);
+            return ResponseEntity.status(204).build();
+        }catch(Exception e){
+            throw new InternalServerException(e.getMessage());
         }
-
-        if (discount > product.getPrice()) {
-            throw new InvalidPriceException();
-        }
-
-        product.setDiscount(discount);
-        final int newPrice = product.getPrice() - discount;
-        product.setPriceWithDiscount(newPrice);
-
-        productRepository.save(product);
-        return ResponseEntity.status(204).build();
     }
 
     @Transactional

@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -33,6 +34,14 @@ public class Product {
     @NotBlank(message = "Description is mandatory")
     @Size(max = 255, min = 25, message = "Enter a description among 25 characters and 255 characters")
     private String description;
+    @NotBlank(message = "Height is mandatory")
+    private Double height;
+    @NotBlank(message = "Width is mandatory")
+    private Double width;
+    @NotBlank(message = "Product Length is mandatory")
+    private Double product_length;
+    @NotBlank(message = "Weight is mandatory")
+    private Double weight;
     @NotBlank(message = "Producer is mandatory")
     private String producer;
     @NotNull

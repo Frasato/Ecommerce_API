@@ -1,0 +1,5 @@
+ALTER TABLE products
+ADD COLUMN height DOUBLE(10,2),
+ADD COLUMN width DOUBLE(10,2),
+ADD COLUMN weight DOUBLE(10,2),
+ADD COLUMN product_length DOUBLE(10,2),

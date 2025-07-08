@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/product")
 @Tag(
@@ -95,8 +97,12 @@ public class ProductController {
             @RequestParam("desc") String description,
             @RequestParam("producer") String producer,
             @RequestParam("price") Integer price,
-            @RequestParam("category") String category
-    ){
+            @RequestParam("category") String category,
+            @RequestParam("height") Double height,
+            @RequestParam("width") Double width,
+            @RequestParam("len") Double len,
+            @RequestParam("weight") Double weight
+            ){
         return productService.addProduct(
                 image,
                 barcode,
@@ -104,7 +110,11 @@ public class ProductController {
                 description,
                 producer,
                 price,
-                category
+                category,
+                height,
+                width,
+                len,
+                weight
         );
     }
 

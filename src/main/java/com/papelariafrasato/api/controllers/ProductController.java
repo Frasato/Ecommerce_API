@@ -98,10 +98,10 @@ public class ProductController {
             @RequestParam("producer") String producer,
             @RequestParam("price") Integer price,
             @RequestParam("category") String category,
-            @RequestParam("height") Double height,
-            @RequestParam("width") Double width,
-            @RequestParam("len") Double len,
-            @RequestParam("weight") Double weight
+            @RequestParam("height") String height,
+            @RequestParam("width") String width,
+            @RequestParam("len") String len,
+            @RequestParam("weight") String weight
             ){
         return productService.addProduct(
                 image,

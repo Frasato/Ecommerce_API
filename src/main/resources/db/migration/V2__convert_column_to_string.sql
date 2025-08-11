@@ -1,0 +1,5 @@
+ALTER TABLE products
+ADD COLUMN height VARCHAR(50),
+ADD COLUMN width VARCHAR(50),
+ADD COLUMN weight VARCHAR(50),
+ADD COLUMN product_length VARCHAR(50),

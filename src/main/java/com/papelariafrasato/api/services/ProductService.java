@@ -74,7 +74,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ResponseEntity<?> addProduct(MultipartFile image, String barCode, String name, String description, String producer, Integer price, String category, Double height, Double width, Double product_length, Double weight){
+    public ResponseEntity<?> addProduct(MultipartFile image, String barCode, String name, String description, String producer, Integer price, String category, String height, String width, String product_length, String weight){
         try {
             if (price < 0) {
                 return ResponseEntity.badRequest().body("The price must be more than 100");

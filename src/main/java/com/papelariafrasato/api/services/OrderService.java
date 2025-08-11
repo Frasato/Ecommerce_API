@@ -24,6 +24,34 @@ public class OrderService {
     private CartRepository cartRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Transactional
+    public ResponseEntity<?> createOrderOnlyOneProduct(String productId, String userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException(productId));
+
+        Order order = new Order();
+        order.setUser(user);
+        order.setStatus("PENDING");
+        order.setOrderItems(new ArrayList<>());
+
+        if (product.getPriceWithDiscount() > 0) {
+            order.setTotalPrice(product.getPriceWithDiscount());
+        } else {
+            order.setTotalPrice(product.getPrice());
+        }
+
+        OrderItem orderItem = new OrderItem();
+        orderItem.setProduct(product);
+        orderItem.setOrder(order);
+        orderItemRepository.save(orderItem);
+        order.getOrderItems().add(orderItem);
+
+        orderRepository.save(order);
+        return ResponseEntity.status(201).body(new ResponseOrderDto(order));
+    }
 
     @Transactional
     public ResponseEntity<?> createOrder(String userId) {

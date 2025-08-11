@@ -1,9 +1,6 @@
 package com.papelariafrasato.api.controllers;
 
-import com.papelariafrasato.api.dtos.CreateOrderRequestDto;
-import com.papelariafrasato.api.dtos.ResponseAllOrdersDto;
-import com.papelariafrasato.api.dtos.ResponseOrderDto;
-import com.papelariafrasato.api.dtos.UpdateOrderStatusRequestDto;
+import com.papelariafrasato.api.dtos.*;
 import com.papelariafrasato.api.services.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -37,6 +34,18 @@ public class OrderController {
     })
     public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequestDto requestDto) {
         return orderService.createOrder(requestDto.userId());
+    }
+
+    @PostMapping("/direct")
+    @Operation(
+            summary = "Create",
+            description = "Create order for a only one product"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Created order", content = @Content(schema = @Schema(implementation = RequestDirectOrderDto.class))),
+    })
+    public ResponseEntity<?> createOrderDirect(@RequestBody RequestDirectOrderDto requestDto) {
+        return orderService.createOrderOnlyOneProduct(requestDto.productId(), requestDto.userId());
     }
 
     @GetMapping("/user/{userId}")

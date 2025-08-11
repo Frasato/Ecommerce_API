@@ -35,13 +35,13 @@ public class Product {
     @Size(max = 255, min = 25, message = "Enter a description among 25 characters and 255 characters")
     private String description;
     @NotBlank(message = "Height is mandatory")
-    private Double height;
+    private String height;
     @NotBlank(message = "Width is mandatory")
-    private Double width;
+    private String width;
     @NotBlank(message = "Product Length is mandatory")
-    private Double product_length;
+    private String product_length;
     @NotBlank(message = "Weight is mandatory")
-    private Double weight;
+    private String weight;
     @NotBlank(message = "Producer is mandatory")
     private String producer;
     @NotNull

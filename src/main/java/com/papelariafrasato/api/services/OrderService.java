@@ -28,7 +28,7 @@ public class OrderService {
     private ProductRepository productRepository;
 
     @Transactional
-    public ResponseEntity<?> createOrderOnlyOneProduct(String productId, String userId){
+    public ResponseEntity<?> createOrderOnlyOneProduct(String productId, String userId, Integer deliveryPrice){
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException(productId));
 
@@ -38,9 +38,9 @@ public class OrderService {
         order.setOrderItems(new ArrayList<>());
 
         if (product.getPriceWithDiscount() > 0) {
-            order.setTotalPrice(product.getPriceWithDiscount());
+            order.setTotalPrice(product.getPriceWithDiscount() + deliveryPrice);
         } else {
-            order.setTotalPrice(product.getPrice());
+            order.setTotalPrice(product.getPrice() + deliveryPrice);
         }
 
         OrderItem orderItem = new OrderItem();
@@ -54,7 +54,7 @@ public class OrderService {
     }
 
     @Transactional
-    public ResponseEntity<?> createOrder(String userId) {
+    public ResponseEntity<?> createOrder(String userId, Integer deliveryPrice) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
@@ -68,7 +68,7 @@ public class OrderService {
         Order order = new Order();
         order.setUser(user);
         order.setStatus("PENDING");
-        order.setTotalPrice(cart.getTotalPrice());
+        order.setTotalPrice(cart.getTotalPrice() + deliveryPrice);
         order.setOrderItems(new ArrayList<>());
 
         orderRepository.save(order);

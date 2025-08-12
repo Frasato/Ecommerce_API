@@ -33,7 +33,7 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequestDto requestDto) {
-        return orderService.createOrder(requestDto.userId());
+        return orderService.createOrder(requestDto.userId(), requestDto.deliveryPrice());
     }
 
     @PostMapping("/direct")
@@ -42,10 +42,10 @@ public class OrderController {
             description = "Create order for a only one product"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Created order", content = @Content(schema = @Schema(implementation = RequestDirectOrderDto.class))),
+            @ApiResponse(responseCode = "201", description = "Created order", content = @Content(schema = @Schema(implementation = ResponseOrderDto.class))),
     })
     public ResponseEntity<?> createOrderDirect(@RequestBody RequestDirectOrderDto requestDto) {
-        return orderService.createOrderOnlyOneProduct(requestDto.productId(), requestDto.userId());
+        return orderService.createOrderOnlyOneProduct(requestDto.productId(), requestDto.userId(), requestDto.deliveryPrice());
     }
 
     @GetMapping("/user/{userId}")

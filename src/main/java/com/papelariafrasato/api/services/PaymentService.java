@@ -30,6 +30,8 @@ public class PaymentService {
     private String paymentUrl;
     @Value("${api.payment.token}")
     private String paymentToken;
+    @Value("${api.payment.x.id}")
+    private String paymentId;
     private final WebClient webClient;
 
     private PaymentService(){
@@ -54,7 +56,7 @@ public class PaymentService {
             var response = webClient.post()
                     .uri(paymentUrl)
                     .header("Authorization", "Bearer " + paymentToken)
-                    .header("X-Idempotency-Key", order.getId())
+                    .header("X-Idempotency-Key", paymentId)
                     .bodyValue(body)
                     .retrieve()
                     .bodyToMono(String.class)

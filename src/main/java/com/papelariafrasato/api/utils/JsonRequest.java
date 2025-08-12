@@ -1,10 +1,14 @@
 package com.papelariafrasato.api.utils;
 
+import com.papelariafrasato.api.dtos.ProductPayload;
 import com.papelariafrasato.api.models.Order;
+import com.papelariafrasato.api.models.Product;
 import com.papelariafrasato.api.models.User;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -54,4 +58,38 @@ public class JsonRequest {
         return body;
     }
 
+    public Map<String, Object> buildDeliveryCost(String toPostalCode, List<ProductPayload> items) {
+        Map<String, Object> body = new HashMap<>();
+
+        Map<String, String> from = new HashMap<>();
+        from.put("postal_code", "14735000");
+
+        Map<String, String> to = new HashMap<>();
+        to.put("postal_code", toPostalCode);
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("own_hand", false);
+        options.put("receipt", false);
+        options.put("insurance_value", 0);
+        options.put("use_insurance_value", false);
+
+        List<Map<String, Object>> products = new ArrayList<>();
+        for (ProductPayload p : items) {
+            Map<String, Object> product = new HashMap<>();
+            product.put("quantity", p.quantity());
+            product.put("height", p.height());
+            product.put("length", p.length());
+            product.put("width", p.width());
+            product.put("weight", p.weight());
+            products.add(product);
+        }
+
+        body.put("from", from);
+        body.put("to", to);
+        body.put("services", "1,2,17");
+        body.put("options", options);
+        body.put("products", products);
+
+        return body;
+    }
 }

@@ -64,7 +64,7 @@ public class DeliveryService {
                 .toEntity(String.class)
                 .block();
 
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(response.getBody());
     }
 
     private static double parseDouble(String s) {

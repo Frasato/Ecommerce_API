@@ -1,16 +1,29 @@
 package com.papelariafrasato.api.controllers;
 
+import com.papelariafrasato.api.dtos.RequestPixDto;
+import com.papelariafrasato.api.services.PaymentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/payments")
+@RequestMapping("/pay")
 @Tag(
         name = "Payment",
         description = "EndPoints to create and process payment requests"
 )
 public class PaymentController {
 
+    @Autowired
+    private PaymentService paymentService;
+
+    @PostMapping("/pix")
+    public ResponseEntity<?> pixPayment(@RequestBody RequestPixDto pixDto){
+        return paymentService.pixPayment(pixDto);
+    }
 
 }

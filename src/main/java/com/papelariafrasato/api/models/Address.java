@@ -1,6 +1,7 @@
 package com.papelariafrasato.api.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -28,7 +29,7 @@ public class Address {
     private String city;
     @NotBlank(message = "CEP is mandatory")
     private String CEP;
-    @JsonBackReference
+    @JsonBackReference("user-address")
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;

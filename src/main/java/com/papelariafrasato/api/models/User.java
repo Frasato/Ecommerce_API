@@ -1,9 +1,12 @@
 package com.papelariafrasato.api.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -27,11 +30,14 @@ public class User {
     @NotBlank(message = "Phone is mandatory")
     private String phone;
     private String role;
-    @JsonManagedReference
+    @JsonManagedReference("user-address")
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Address address;
-    @JsonManagedReference
+    @JsonManagedReference("user-cart")
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private List<DeliveryPackage> deliveryPackages;
 
 }

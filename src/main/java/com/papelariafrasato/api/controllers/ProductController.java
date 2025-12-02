@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -81,7 +82,7 @@ public class ProductController {
         return productService.getAllProductsByCategory(category);
     }
 
-    @PostMapping()
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
             summary = "Create Product",
             description = "Create new product"
@@ -91,7 +92,7 @@ public class ProductController {
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> createNewProduct(
-            @RequestParam("file") MultipartFile image,
+            @RequestPart("file") MultipartFile image,
             @RequestParam("name") String name,
             @RequestParam("barcode") String barcode,
             @RequestParam("desc") String description,

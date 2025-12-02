@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface CartRepository extends JpaRepository<Cart, String>{
-    @Query(value = "SELECT * FROM carts WHERE user_id = :userId", nativeQuery = true)
-    Optional<Cart> findCartByUserId(@Param("userId")String userId);
+public interface CartRepository extends JpaRepository<Cart, String> {
+    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId")
+    Optional<Cart> findCartByUserId(@Param("userId") String userId);
 }

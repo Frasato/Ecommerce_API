@@ -23,6 +23,18 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @GetMapping()
+    @Operation(
+            summary = "All Orders",
+            description = "Get all orders"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
+    public ResponseEntity<?> allOrders(){
+        return orderService.getAllOrders();
+    }
+
     @PostMapping()
     @Operation(
             summary = "Create",
@@ -33,7 +45,7 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequestDto requestDto) {
-        return orderService.createOrder(requestDto.userId(), requestDto.deliveryPrice());
+        return orderService.createOrder(requestDto.userId(), requestDto.deliveryOption());
     }
 
     @PostMapping("/direct")
@@ -50,7 +62,7 @@ public class OrderController {
 
     @GetMapping("/user/{userId}")
     @Operation(
-            summary = "Take all order",
+            summary = "Take all order by ID",
             description = "Get orders by user"
     )
     @ApiResponses({
@@ -58,7 +70,7 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> getAllOrders(@PathVariable("userId") String userId) {
-        return orderService.getAllOrders(userId);
+        return orderService.getAllOrdersById(userId);
     }
 
     @GetMapping("/{id}")
@@ -74,18 +86,8 @@ public class OrderController {
         return orderService.getOrderById(orderId);
     }
 
-    @PutMapping("/{id}/status")
-    @Operation(
-            summary = "Update order",
-            description = "Update status order by order id"
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Updated order", content = @Content(schema = @Schema(implementation = ResponseOrderDto.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
-    })
-    public ResponseEntity<?> updateOrderStatus(
-            @PathVariable("id") String orderId,
-            @RequestBody UpdateOrderStatusRequestDto requestDto) {
-        return orderService.updateOrderStatus(orderId, requestDto.status());
+    @PutMapping("/stauts/{id}")
+    public ResponseEntity<String> actualizeStatus(@PathVariable("id") String orderId){
+        return orderService.updateOrderStatus(orderId);
     }
 } 

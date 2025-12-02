@@ -7,5 +7,7 @@ public record CreateOrderRequestDto(
         @NotBlank(message = "UserId shouldn't be empty")
         @Schema(description = "UUID user id", example = "adaw331-asdaf31-242fr2-qd31fe33")
         String userId,
-        Integer deliveryPrice
+        @NotBlank(message = "Delivery Option shouldn't be empty")
+        @Schema(description = "Delivery option to calculate and generate ticket", example = "1")
+        Integer deliveryOption
 ){} 

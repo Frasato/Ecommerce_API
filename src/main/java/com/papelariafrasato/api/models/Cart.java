@@ -21,13 +21,14 @@ public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private Integer totalPrice;
-    @JsonBackReference
+    @Column(name = "total_price", nullable = false)
+    private Integer totalPrice = 0;
+    @JsonBackReference("user-cart")
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
-    @JsonManagedReference
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+    @JsonManagedReference("cart-items")
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItem;
 
 }

@@ -1,5 +1,6 @@
 package com.papelariafrasato.api.controllers;
 
+import com.papelariafrasato.api.dtos.RequestCardDto;
 import com.papelariafrasato.api.dtos.RequestPixDto;
 import com.papelariafrasato.api.services.PaymentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,5 +26,8 @@ public class PaymentController {
     public ResponseEntity<?> pixPayment(@RequestBody RequestPixDto pixDto){
         return paymentService.pixPayment(pixDto);
     }
+
+    @PostMapping("/card")
+    public ResponseEntity<?> cardPayment(@RequestBody RequestCardDto cardDto) { return paymentService.cardPayment(cardDto); }
 
 }

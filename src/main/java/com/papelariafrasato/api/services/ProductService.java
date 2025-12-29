@@ -2,6 +2,7 @@ package com.papelariafrasato.api.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.papelariafrasato.api.dtos.RequestAddDiscountProductDto;
 import com.papelariafrasato.api.dtos.ResponseAllProductsDto;
 import com.papelariafrasato.api.dtos.ResponseProductDto;
 import com.papelariafrasato.api.exceptions.DiscountException;
@@ -14,10 +15,7 @@ import com.papelariafrasato.api.repositories.ProductAnalyticsRepository;
 import com.papelariafrasato.api.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -27,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +64,10 @@ public class ProductService {
         }
 
         return ResponseEntity.ok().body(new ResponseAllProductsDto(products));
+    }
+
+    public ResponseEntity<?> getPromotionsProducts(){
+        return ResponseEntity.status(HttpStatus.OK).body(productRepository.getProductsByDiscount());
     }
 
     @Transactional
@@ -123,23 +126,25 @@ public class ProductService {
     }
 
     @Transactional
-    public ResponseEntity<?> addDiscountOnProduct(String productId, int discount) {
+    public ResponseEntity<?> addDiscountOnProduct(RequestAddDiscountProductDto addDiscountProductDto) {
         try{
-            Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new ProductNotFoundException(productId));
+            Product product = productRepository.findById(addDiscountProductDto.productId())
+                    .orElseThrow(() -> new ProductNotFoundException(addDiscountProductDto.productId()));
 
-            if (discount < 0 || discount > 100) throw new InvalidPriceException();
+            if (addDiscountProductDto.discount() < 0 || addDiscountProductDto.discount() > 100) throw new InvalidPriceException();
 
-            if (product.getDiscount() > 0) throw new DiscountException(discount);
+            if (product.getDiscount() > 0) throw new DiscountException(addDiscountProductDto.discount());
 
-            product.setDiscount(discount);
+            product.setDiscount(addDiscountProductDto.discount());
 
-            double percent = (double) discount / 100;
+            double percent = (double) addDiscountProductDto.discount() / 100;
             double discountPrice = product.getPrice() * percent;
             double applyDiscount = product.getPrice() - discountPrice;
             int newPrice = (int) applyDiscount * 100;
 
             product.setPriceWithDiscount(newPrice);
+            product.setDiscountEnd(addDiscountProductDto.discountEnd());
+            product.setDiscountInit(LocalDate.now());
 
             productRepository.save(product);
             return ResponseEntity.status(200).build();
@@ -155,6 +160,8 @@ public class ProductService {
 
         product.setDiscount(0);
         product.setPriceWithDiscount(0);
+        product.setDiscountEnd(null);
+        product.setDiscountInit(null);
         productRepository.save(product);
         return ResponseEntity.status(204).build();
     }

@@ -43,6 +43,19 @@ public class ProductController {
         return productService.allProducts();
     }
 
+    @GetMapping("/promotion")
+    @Operation(
+            summary = "All Products",
+            description = "Get all products with discount on him"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Get all", content = @Content(schema = @Schema(implementation = ResponseAllProductsDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
+    })
+    public ResponseEntity<?> getAllProductsWithDiscount(){
+        return productService.getPromotionsProducts();
+    }
+
     @GetMapping("/{id}")
     @Operation(
             summary = "Product",
@@ -129,7 +142,7 @@ public class ProductController {
             @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
     })
     public ResponseEntity<?> addDiscount(@RequestBody RequestAddDiscountProductDto discountProductDto){
-        return productService.addDiscountOnProduct(discountProductDto.productId(), discountProductDto.discount());
+        return productService.addDiscountOnProduct(discountProductDto);
     }
 
     @PutMapping("/{id}")

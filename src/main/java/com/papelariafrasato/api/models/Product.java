@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -48,6 +48,8 @@ public class Product {
     @Min(100)
     private Integer price;
     private Integer discount;
+    private LocalDate discountEnd;
+    private LocalDate discountInit;
     private Integer priceWithDiscount;
     @NotBlank(message = "Category is mandatory")
     private String category;

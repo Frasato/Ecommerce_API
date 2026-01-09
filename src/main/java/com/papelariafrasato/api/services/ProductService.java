@@ -67,7 +67,8 @@ public class ProductService {
     }
 
     public ResponseEntity<?> getPromotionsProducts(){
-        return ResponseEntity.status(HttpStatus.OK).body(productRepository.getProductsByDiscount());
+        List<Product> products = productRepository.getProductsByDiscount();
+        return ResponseEntity.ok(new ResponseAllProductsDto(products));
     }
 
     @Transactional

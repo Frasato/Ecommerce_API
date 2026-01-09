@@ -132,16 +132,19 @@ public class ProductService {
             Product product = productRepository.findById(addDiscountProductDto.productId())
                     .orElseThrow(() -> new ProductNotFoundException(addDiscountProductDto.productId()));
 
-            if (addDiscountProductDto.discount() < 0 || addDiscountProductDto.discount() > 100) throw new InvalidPriceException();
+            if (addDiscountProductDto.discount() < 0 || addDiscountProductDto.discount() > 100)
+                throw new InvalidPriceException();
 
-            if (product.getDiscount() > 0) throw new DiscountException(addDiscountProductDto.discount());
+            if (product.getDiscount() > 0)
+                throw new DiscountException(addDiscountProductDto.discount());
 
             product.setDiscount(addDiscountProductDto.discount());
 
+            double priceInReais = (double) product.getPrice() / 100;
             double percent = (double) addDiscountProductDto.discount() / 100;
-            double discountPrice = product.getPrice() * percent;
-            double applyDiscount = product.getPrice() - discountPrice;
-            int newPrice = (int) applyDiscount * 100;
+            double discountInReais = priceInReais * percent;
+            double finalPriceInReais = priceInReais - discountInReais;
+            int newPrice = (int) Math.round(finalPriceInReais * 100);
 
             product.setPriceWithDiscount(newPrice);
             product.setDiscountEnd(addDiscountProductDto.discountEnd());

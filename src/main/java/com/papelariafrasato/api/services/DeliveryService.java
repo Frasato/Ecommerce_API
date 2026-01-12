@@ -45,7 +45,6 @@ public class DeliveryService {
             .build();
 
     public String deliveryCost(String userId) {
-        System.out.println("Entrou no delivery cost");
         Cart cart = cartRepository.findCartByUserId(userId)
                 .orElseThrow(() -> new CartNotFoundException(userId));
 
@@ -53,8 +52,6 @@ public class DeliveryService {
         if (cartItems == null || cartItems.isEmpty()) {
             throw new EmptyCartException();
         }
-
-        System.out.println("Pegou os itens do carrinho: " +cartItems);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found to id: " + userId));
@@ -72,7 +69,6 @@ public class DeliveryService {
 
         Map<String, Object> body = jsonRequest.buildDeliveryCost(user.getAddress().getCEP(), items);
 
-        System.out.println("Montou o corpo da requisição: " + body);
         var response = webClient.post()
                 .uri(apiUrl + "/api/v0/calculator")
                 .header("Authorization", "Bearer " + apiToken)
@@ -84,7 +80,6 @@ public class DeliveryService {
                 .toEntity(String.class)
                 .block();
 
-        System.out.println("Terminou a requisição: " + response.getBody() + " | " + response.getStatusCode());
         return response.getBody();
     }
 

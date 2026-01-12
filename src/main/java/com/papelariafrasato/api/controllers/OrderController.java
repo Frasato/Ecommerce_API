@@ -48,6 +48,19 @@ public class OrderController {
         return orderService.createOrder(requestDto.userId(), requestDto.deliveryOption());
     }
 
+    @PostMapping("/without/delivery")
+    @Operation(
+            summary = "Create",
+            description = "Create product order without set delivery"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Created order", content = @Content(schema = @Schema(implementation = ResponseOrderDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid information our empty information")
+    })
+    public ResponseEntity<?> createOrderWithoutDelivery(@RequestBody RequestCreateOrderWithoutDelivery createOrderWithoutDelivery) {
+        return orderService.createOrderWithoutDelivery(createOrderWithoutDelivery);
+    }
+
     @PostMapping("/direct")
     @Operation(
             summary = "Create",

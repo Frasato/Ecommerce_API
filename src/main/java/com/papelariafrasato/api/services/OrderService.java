@@ -2,6 +2,7 @@ package com.papelariafrasato.api.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.papelariafrasato.api.dtos.RequestCreateOrderWithoutDelivery;
 import com.papelariafrasato.api.dtos.ResponseAllOrdersDto;
 import com.papelariafrasato.api.dtos.ResponseOrderDto;
 import com.papelariafrasato.api.exceptions.*;
@@ -174,9 +175,46 @@ public class OrderService {
         return ResponseEntity.status(201).body(new ResponseOrderDto(order));
     }
 
+    public ResponseEntity<?> createOrderWithoutDelivery(RequestCreateOrderWithoutDelivery createOrderWithoutDelivery){
+        User user = userRepository.findById(createOrderWithoutDelivery.userId())
+                .orElseThrow(() -> new UserNotFoundException(createOrderWithoutDelivery.userId()));
+        Cart cart = cartRepository.findCartByUserId(user.getId())
+                .orElseThrow(() -> new CartNotFoundException(user.getId()));
+
+        if (cart.getCartItem() == null || cart.getCartItem().isEmpty()) throw new EmptyCartException();
+
+        Order order = new Order();
+        order.setUser(user);
+        order.setStatus("PENDING");
+        order.setTotalPrice(cart.getTotalPrice());
+        order.setOrderItems(new ArrayList<>());
+
+        Payment payment = new Payment();
+        payment.setOrder(order);
+
+        orderRepository.save(order);
+        paymentRepository.save(payment);
+
+        for (CartItem cartItem : cart.getCartItem()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setProduct(cartItem.getProduct());
+            orderItemRepository.save(orderItem);
+            order.getOrderItems().add(orderItem);
+        }
+
+        orderRepository.save(order);
+
+        cartItemRepository.deleteAll(cart.getCartItem());
+        cart.getCartItem().clear();
+        cart.setTotalPrice(0);
+        cartRepository.saveAndFlush(cart);
+
+        return ResponseEntity.status(201).body(new ResponseOrderDto(order));
+    }
+
     public ResponseEntity<?> getAllOrdersById(String userId) {
         List<Order> orders = orderRepository.findByUserId(userId);
-        System.out.println("O que tem nas minhas orders: " + orders.toString());
         return ResponseEntity.ok().body(new ResponseAllOrdersDto(orders));
     }
 

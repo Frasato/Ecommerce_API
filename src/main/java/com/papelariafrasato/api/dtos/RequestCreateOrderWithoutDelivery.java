@@ -1,5 +1,6 @@
 package com.papelariafrasato.api.dtos;
 
 public record RequestCreateOrderWithoutDelivery(
-        String userId
+        String userId,
+        String paymentType
 ){}

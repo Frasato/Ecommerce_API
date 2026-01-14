@@ -191,6 +191,8 @@ public class OrderService {
 
         Payment payment = new Payment();
         payment.setOrder(order);
+        payment.setPaymentType(createOrderWithoutDelivery.paymentType());
+        payment.setStatus("PENDING");
 
         orderRepository.save(order);
         paymentRepository.save(payment);

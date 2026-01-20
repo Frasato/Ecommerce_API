@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,6 +129,8 @@ public class ProductService {
 
     @Transactional
     public ResponseEntity<?> addDiscountOnProduct(RequestAddDiscountProductDto addDiscountProductDto) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
         try{
             Product product = productRepository.findById(addDiscountProductDto.productId())
                     .orElseThrow(() -> new ProductNotFoundException(addDiscountProductDto.productId()));
@@ -147,7 +150,9 @@ public class ProductService {
             int newPrice = (int) Math.round(finalPriceInReais * 100);
 
             product.setPriceWithDiscount(newPrice);
-            product.setDiscountEnd(addDiscountProductDto.discountEnd());
+
+            LocalDate date = LocalDate.parse(addDiscountProductDto.discountEnd(), formatter);
+            product.setDiscountEnd(date);
             product.setDiscountInit(LocalDate.now());
 
             productRepository.save(product);

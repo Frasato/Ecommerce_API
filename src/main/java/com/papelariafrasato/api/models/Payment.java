@@ -21,6 +21,7 @@ public class Payment {
     private String paymentId;
     private String paymentType;
     private String status;
+    private Integer changeFor;
 
     @JsonBackReference
     @OneToOne

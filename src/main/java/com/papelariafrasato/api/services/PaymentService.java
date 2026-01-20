@@ -3,7 +3,9 @@ package com.papelariafrasato.api.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.papelariafrasato.api.dtos.RequestCardDto;
+import com.papelariafrasato.api.dtos.RequestMoneyPaymentDto;
 import com.papelariafrasato.api.dtos.RequestPixDto;
+import com.papelariafrasato.api.exceptions.CityIsNotQualifiedException;
 import com.papelariafrasato.api.exceptions.OrderNotFoundException;
 import com.papelariafrasato.api.exceptions.UserNotFoundException;
 import com.papelariafrasato.api.models.Order;
@@ -16,10 +18,7 @@ import com.papelariafrasato.api.utils.JsonRequest;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -170,4 +169,23 @@ public class PaymentService {
         }
     }
 
+    public ResponseEntity<?> moneyPayment(RequestMoneyPaymentDto moneyDto){
+        User user = userRepository.findById(moneyDto.userId())
+                .orElseThrow(() -> new UserNotFoundException(moneyDto.userId()));
+
+        if(!user.getAddress().getCity().equalsIgnoreCase("severínia")) throw new CityIsNotQualifiedException(user.getAddress().getCity());
+
+        Order order = orderRepository.findById(moneyDto.orderId())
+                .orElseThrow(() -> new OrderNotFoundException(moneyDto.orderId()));
+
+        Payment payment = new Payment();
+        payment.setPaymentType("MONEY");
+        payment.setStatus("AUTHORIZED");
+        payment.setChangeFor(moneyDto.changeFor());
+
+        order.setPayment(payment);
+        orderRepository.save(order);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

@@ -9,5 +9,5 @@ public record RequestAddDiscountProductDto(
         @Schema(description = "Discount on percent(%)", example = "50%")
         int discount,
         @Schema(description = "The end of the product discount", example = "12/03")
-        LocalDate discountEnd
+        String discountEnd
 ){}

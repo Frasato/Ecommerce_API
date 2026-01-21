@@ -55,6 +55,7 @@ O objetivo principal é construir uma api que seja:
 - ⚙️ Maven
 - 📚Swagger
 - 🛡️ JWT
+- 👀 Prometheus e Grafana
 
 # Decisões técnicas
 
@@ -70,7 +71,7 @@ Por mais que o projeto funcione e seja usado, ainda necessita de melhorias em al
 
 - Refatorar para Arquitetura Limpa
 - Testes Unitários e E2E
-- Observabilidade com Prometheus e Grafana
+- Logs com Loki
 - Pagamentos passarem por RabbitMQ
 - Transformar em um container Docker para automatizar CI/CD
 

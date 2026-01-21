@@ -5,7 +5,7 @@ import com.papelariafrasato.api.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -16,7 +16,7 @@ public class DiscountScheduleService {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void removeExpiredDiscounts() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate now = LocalDate.now();
 
         List<Product> expiredProducts = productRepository.findExpiredDiscounts(now);
 

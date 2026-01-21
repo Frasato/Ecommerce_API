@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -22,5 +22,5 @@ public interface ProductRepository extends JpaRepository<Product, String>{
     List<Product> getProductsByDiscount();
 
     @Query(value = "SELECT * FROM products WHERE discount_end IS NOT NULL AND discount_end <= :currentDate", nativeQuery = true)
-    List<Product> findExpiredDiscounts(@Param("currentDate") LocalDateTime currentDate);
+    List<Product> findExpiredDiscounts(@Param("currentDate") LocalDate currentDate);
 }

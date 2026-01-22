@@ -11,6 +11,7 @@ import com.papelariafrasato.api.exceptions.InvalidPriceException;
 import com.papelariafrasato.api.exceptions.ProductNotFoundException;
 import com.papelariafrasato.api.models.Product;
 import com.papelariafrasato.api.models.ProductAnalytics;
+import com.papelariafrasato.api.repositories.CartItemRepository;
 import com.papelariafrasato.api.repositories.ProductAnalyticsRepository;
 import com.papelariafrasato.api.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,8 @@ public class ProductService {
     private ProductAnalyticsService analyticsService;
     @Autowired
     private ProductAnalyticsRepository analyticsRepository;
+    @Autowired
+    private CartItemRepository cartItemRepository;
 
     @Transactional
     public ResponseEntity<?> getProduct(String productId){
@@ -202,8 +205,10 @@ public class ProductService {
     public ResponseEntity<?> removeProduct(String productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
+
+        cartItemRepository.deleteByProductId(productId);
         
         productRepository.delete(product);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

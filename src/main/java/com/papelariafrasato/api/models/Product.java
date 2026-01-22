@@ -53,9 +53,9 @@ public class Product {
     private Integer priceWithDiscount;
     @NotBlank(message = "Category is mandatory")
     private String category;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
     @JsonBackReference
-    @OneToOne(mappedBy = "product")
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private ProductAnalytics productAnalytics;
 }

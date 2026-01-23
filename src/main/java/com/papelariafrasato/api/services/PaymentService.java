@@ -173,7 +173,7 @@ public class PaymentService {
         User user = userRepository.findById(moneyDto.userId())
                 .orElseThrow(() -> new UserNotFoundException(moneyDto.userId()));
 
-        if(!user.getAddress().getCity().equalsIgnoreCase("severínia")) throw new CityIsNotQualifiedException(user.getAddress().getCity());
+        if(!user.getAddress().getCity().equalsIgnoreCase("severínia") || !user.getAddress().getCity().equalsIgnoreCase("severinia")) throw new CityIsNotQualifiedException(user.getAddress().getCity());
 
         Order order = orderRepository.findById(moneyDto.orderId())
                 .orElseThrow(() -> new OrderNotFoundException(moneyDto.orderId()));

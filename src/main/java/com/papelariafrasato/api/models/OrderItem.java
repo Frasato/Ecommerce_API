@@ -2,6 +2,7 @@ package com.papelariafrasato.api.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,9 +20,9 @@ public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "product_id")
+    @JsonIgnoreProperties("orderItems")
     private Product product;
     @JsonBackReference
     @ManyToOne
